@@ -9,6 +9,15 @@ class TestJobFitMatch(unittest.TestCase):
     def setUpClass(cls):
         init_db()
         seed_database()
+        if not job_discovery_agent.get_all_jobs():
+            job_discovery_agent.ingest_job(
+                title="Senior Asset Manager – Real Estate (GCC & MENA)",
+                company_name="Blackstone",
+                location="Dubai, UAE (DIFC)",
+                source_url="https://www.blackstone.com/careers/",
+                description="Blackstone Real Estate is seeking an experienced Senior Asset Manager in Dubai to oversee commercial leasing, portfolio NOI optimization, and CAPEX planning. Requires 15+ years experience, large portfolio management (AED 500M+), commercial lease negotiation, and UAE RERA compliance.",
+                seniority="Senior Manager / Director-track"
+            )
 
     def test_evidence_based_matching(self):
         jobs = job_discovery_agent.get_all_jobs()

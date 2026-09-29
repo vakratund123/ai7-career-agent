@@ -18,19 +18,19 @@ class OutreachAgent:
     def __init__(self):
         pass
 
-    def generate_outreach_draft(self, job_id: str, contact_id: str, outreach_type: str = "HIRING_MGR_PITCH") -> Dict[str, Any]:
+    def generate_outreach_draft(self, job_id: Optional[str], contact_id: str, outreach_type: str = "HIRING_MGR_PITCH") -> Dict[str, Any]:
         """Crafts a bespoke outreach message grounded in verified candidate career metrics."""
         with get_db() as conn:
-            job = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+            job = conn.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone() if job_id else None
             contact = conn.execute("SELECT * FROM contacts WHERE id = ?", (contact_id,)).fetchone()
 
-        if not job or not contact:
-            return {"error": "Job or Contact not found."}
+        if not contact:
+            return {"error": "Contact not found."}
 
-        company = job["company_name"]
+        company = job["company_name"] if job else contact["company_name"]
         contact_name = contact["full_name"]
         contact_role = contact["job_title"]
-        job_title = job["title"]
+        job_title = job["title"] if job else "Senior Asset Manager / Commercial Portfolio Leader"
 
         # Check anti-spam safety
         is_safe, safety_reason = security_engine.check_outreach_safety(company, contact_id, contact["email"] or "")

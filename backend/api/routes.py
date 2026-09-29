@@ -19,6 +19,7 @@ from backend.agents.learning_agent import learning_agent
 from backend.agents.human_escalation import human_escalation_agent
 from backend.agents.compliance_agent import compliance_agent
 from backend.agents.interview_intel import interview_intel_agent
+from backend.agents.resume_tailor import resume_tailor_agent
 from backend.core.config import EXPORTS_DIR
 
 logger = logging.getLogger("ai7.api")
@@ -26,6 +27,24 @@ logger = logging.getLogger("ai7.api")
 router = APIRouter(prefix="/api")
 
 # Models
+class JobIngestRequest(BaseModel):
+    title: str
+    company_name: str
+    location: Optional[str] = "Dubai, UAE"
+    source_url: str
+    description: str
+    seniority: Optional[str] = "Senior Manager / Director-track"
+
+class ContactAddRequest(BaseModel):
+    company_name: str
+    full_name: str
+    job_title: str
+    role_category: Optional[str] = "hiring_manager"
+    email: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    target_job_id: Optional[str] = None
+    notes: Optional[str] = None
+
 class FactCreateRequest(BaseModel):
     category: str
     fact_text: str
@@ -87,6 +106,87 @@ def get_jobs(status: Optional[str] = None):
 def run_job_search():
     discovered = job_discovery_agent.discover_opportunities()
     return {"discovered_count": len(discovered), "jobs": discovered}
+
+@router.post("/jobs/ingest")
+def ingest_real_job(req: JobIngestRequest):
+    """
+    Ingests a 100% verified real job posting.
+    Immediately evaluates match score, tailors ATS resume PDF, and prepares application.
+    """
+    if not req.title.strip() or not req.company_name.strip() or not req.description.strip():
+        raise HTTPException(status_code=400, detail="Title, Company Name, and Description are required.")
+
+    # 1. Ingest into database
+    job = job_discovery_agent.ingest_job(
+        title=req.title.strip(),
+        company_name=req.company_name.strip(),
+        location=req.location or "Dubai, UAE",
+        source_url=req.source_url.strip(),
+        description=req.description.strip(),
+        seniority=req.seniority or "Senior Manager / Director-track"
+    )
+    job_id = job["id"]
+
+    # 2. Evaluate fit against Jagannath's verified facts
+    match_report = job_fit_agent.evaluate_job(job_id)
+
+    # 3. Generate tailored ATS resume PDF
+    resume_res = resume_tailor_agent.generate_tailored_resume(job_id)
+
+    # 4. Prepare application packet (cover letter, Q&A)
+    app_packet = application_agent.prepare_application_packet(job_id)
+
+    return {
+        "status": "ingested",
+        "job": job,
+        "match_report": match_report,
+        "resume": resume_res,
+        "application_packet": app_packet
+    }
+
+@router.get("/real-search-links")
+def get_real_search_links():
+    """Returns working live search URLs for UAE Real Estate and Asset Management roles."""
+    return {
+        "job_boards": [
+            {
+                "title": "LinkedIn Jobs: Senior Asset Manager (Dubai, UAE)",
+                "url": "https://www.linkedin.com/jobs/search/?keywords=Senior%20Asset%20Manager&location=Dubai%2C%20United%20Arab%20Emirates",
+                "badge": "LinkedIn Live",
+                "icon": "linkedin"
+            },
+            {
+                "title": "LinkedIn Jobs: Commercial Real Estate Manager (Dubai, UAE)",
+                "url": "https://www.linkedin.com/jobs/search/?keywords=Commercial%20Real%20Estate%20Manager&location=Dubai%2C%20United%20Arab%20Emirates",
+                "badge": "LinkedIn Live",
+                "icon": "linkedin"
+            },
+            {
+                "title": "LinkedIn Jobs: Retail Leasing Director (Dubai, UAE)",
+                "url": "https://www.linkedin.com/jobs/search/?keywords=Retail%20Leasing%20Director&location=Dubai%2C%20United%20Arab%20Emirates",
+                "badge": "LinkedIn Live",
+                "icon": "linkedin"
+            },
+            {
+                "title": "GulfTalent: Real Estate & Property Jobs (UAE)",
+                "url": "https://www.gulftalent.com/uae/jobs/category/real-estate",
+                "badge": "GulfTalent",
+                "icon": "globe"
+            },
+            {
+                "title": "Bayt.com: Asset Management Jobs (Dubai)",
+                "url": "https://www.bayt.com/en/uae/jobs/asset-management-jobs/",
+                "badge": "Bayt",
+                "icon": "briefcase"
+            },
+            {
+                "title": "Indeed UAE: Commercial Real Estate (Dubai)",
+                "url": "https://ae.indeed.com/jobs?q=Commercial+Real+Estate&l=Dubai",
+                "badge": "Indeed UAE",
+                "icon": "search"
+            }
+        ]
+    }
 
 @router.get("/jobs/{job_id}")
 def get_job_detail(job_id: str):
@@ -151,6 +251,38 @@ def list_contacts():
             ORDER BY c.company_name ASC, c.full_name ASC
         """).fetchall()
         return [dict(r) for r in rows]
+
+@router.post("/contacts/add")
+def add_real_contact(req: ContactAddRequest):
+    """
+    Adds a verified 100% real human contact found on LinkedIn or in professional circles.
+    Instantly drafts tailored executive pitch or recruiter intro.
+    """
+    if not req.full_name.strip() or not req.company_name.strip():
+        raise HTTPException(status_code=400, detail="Full Name and Company Name are required.")
+
+    contact = contact_intelligence_agent.add_real_contact(
+        company_name=req.company_name.strip(),
+        full_name=req.full_name.strip(),
+        job_title=req.job_title.strip() if req.job_title else "Executive",
+        role_category=req.role_category or "hiring_manager",
+        email=req.email.strip() if req.email else None,
+        linkedin_url=req.linkedin_url.strip() if req.linkedin_url else None,
+        notes=req.notes
+    )
+
+    # Immediately generate tailored outreach draft
+    draft = outreach_agent.generate_outreach_draft(
+        job_id=req.target_job_id,
+        contact_id=contact["id"],
+        outreach_type="RECRUITER_INTRO" if contact["role_category"] == "recruiter" else "HIRING_MGR_PITCH"
+    )
+
+    return {
+        "status": "added",
+        "contact": contact,
+        "outreach_draft": draft
+    }
 
 @router.post("/contacts/discover")
 def discover_contacts(company_name: str):

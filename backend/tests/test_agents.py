@@ -16,6 +16,15 @@ class TestMultiAgentSystem(unittest.TestCase):
     def setUpClass(cls):
         init_db()
         seed_database()
+        if not job_discovery_agent.get_all_jobs():
+            job_discovery_agent.ingest_job(
+                title="Senior Asset Manager – Real Estate",
+                company_name="Brookfield Asset Management",
+                location="Dubai, UAE",
+                source_url="https://www.brookfield.com/careers",
+                description="Brookfield Real Estate is seeking an experienced Senior Asset Manager in Dubai to oversee commercial leasing, portfolio NOI optimization, and CAPEX planning. Requires 15+ years experience, large portfolio management (AED 500M+), commercial lease negotiation, and UAE RERA compliance.",
+                seniority="Senior Manager / Director-track"
+            )
 
     def test_pdf_resume_generation(self):
         jobs = job_discovery_agent.get_all_jobs()

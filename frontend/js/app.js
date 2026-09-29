@@ -243,7 +243,18 @@ async function loadOpportunitiesRadar() {
     container.innerHTML = '';
     
     if (currentJobs.length === 0) {
-      container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">No jobs discovered yet. Run Career Scout Loop.</div>`;
+      container.innerHTML = `
+        <div style="text-align: center; color: var(--text-muted); padding: 3rem 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed var(--border-color);">
+          <div style="font-size: 2.2rem; margin-bottom: 0.6rem;">💼</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem;">No Jobs Currently Tracked</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.25rem auto; line-height: 1.5;">
+            Browse the 1-click live search links above on LinkedIn, GulfTalent, or Bayt. Find any vacancy, copy its text, and click below to evaluate fit and generate a tailored ATS resume.
+          </div>
+          <button class="btn-primary" onclick="openIngestJobModal()" style="font-size: 0.9rem; padding: 0.65rem 1.4rem;">
+            <span>➕</span> Ingest Real Job Posting
+          </button>
+        </div>
+      `;
       return;
     }
     
@@ -265,13 +276,26 @@ async function loadOpportunitiesRadar() {
           </div>
         `).join('');
       }
+
+      let sourceLinkHtml = '';
+      if (job.source_url) {
+        sourceLinkHtml = `
+          <a href="${escapeHtml(job.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #0A66C2; font-size: 0.78rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+            🔗 View Real Posting ↗
+          </a>
+        `;
+      }
       
       card.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
           <div>
             <div class="job-company">${job.company_name}</div>
-            <h4 style="font-size: 1.1rem; color: var(--text-primary);">${job.title}</h4>
-            <div style="font-size: 0.8rem; color: var(--text-secondary);">${job.location} | Seniority: ${job.seniority}</div>
+            <h4 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 0.25rem;">${job.title}</h4>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <span>📍 ${job.location}</span>
+              <span>⭐ ${job.seniority}</span>
+              ${sourceLinkHtml}
+            </div>
           </div>
           <span class="fit-badge ${matchReport && matchReport.overall_fit_label === 'STRONG_FIT' ? 'fit-strong' : 'fit-mod'}">
             ${matchReport ? matchReport.overall_fit_label : 'EVALUATING'}
@@ -285,10 +309,10 @@ async function loadOpportunitiesRadar() {
           ${matchAreasHtml || '<div style="color: var(--text-muted); font-size: 0.8rem;">Click to evaluate full evidence breakdown</div>'}
         </div>
         
-        <div style="display: flex; gap: 0.6rem;">
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
           <button class="btn-secondary" onclick="openMatchInspector('${job.id}')">View Full Evidence Breakdown</button>
           <button class="btn-primary" onclick="prepareApplication('${job.id}')">Prepare Application Packet</button>
-          <button class="btn-secondary" onclick="prepareInterview('${job.id}')">Prepare Interview Dossier</button>
+          <button class="btn-secondary" onclick="openAddContactModal('${escapeHtml(job.company_name)}')">➕ Add Contact at ${escapeHtml(job.company_name)}</button>
         </div>
       `;
       
@@ -411,10 +435,15 @@ function renderContactsGrid(contacts) {
 
   if (!contacts || contacts.length === 0) {
     grid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed var(--border-color);">
-        <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
-        <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">No contacts discovered yet</div>
-        <div style="font-size: 0.8rem; color: var(--text-secondary);">Run the Career Scout Loop to automatically identify verified hiring managers and talent leaders.</div>
+      <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed var(--border-color);">
+        <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">👥</div>
+        <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem;">No Contacts Added Yet</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto 1.25rem auto; line-height: 1.5;">
+          Click any target company chip above to search live real estate decision makers on LinkedIn in Dubai. When you find the right person, click below to add them and generate personalized AI outreach.
+        </div>
+        <button class="btn-primary" onclick="openAddContactModal()" style="font-size: 0.9rem; padding: 0.65rem 1.4rem;">
+          <span>➕</span> Add Real Contact
+        </button>
       </div>
     `;
     return;
@@ -1094,3 +1123,158 @@ async function sendTestEmail() {
     alert('Test Email Error: ' + err.message);
   }
 }
+
+// 8. Ingest Real Job Modal Handlers
+function openIngestJobModal() {
+  document.getElementById('ingest-job-title').value = '';
+  document.getElementById('ingest-job-company').value = '';
+  document.getElementById('ingest-job-location').value = 'Dubai, UAE';
+  document.getElementById('ingest-job-url').value = '';
+  document.getElementById('ingest-job-desc').value = '';
+  const statusMsg = document.getElementById('ingest-status-msg');
+  if (statusMsg) statusMsg.style.display = 'none';
+  document.getElementById('modal-ingest-job').classList.add('active');
+}
+
+async function submitIngestJob() {
+  const title = document.getElementById('ingest-job-title').value.trim();
+  const company_name = document.getElementById('ingest-job-company').value.trim();
+  const location = document.getElementById('ingest-job-location').value.trim() || 'Dubai, UAE';
+  const source_url = document.getElementById('ingest-job-url').value.trim();
+  const description = document.getElementById('ingest-job-desc').value.trim();
+  const statusMsg = document.getElementById('ingest-status-msg');
+  const submitBtn = document.getElementById('btn-submit-ingest');
+
+  if (!title || !company_name || !description) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+    statusMsg.style.color = '#F43F5E';
+    statusMsg.textContent = 'Please fill in Job Title, Company Name, and Job Description.';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Processing & Tailoring Application...';
+  statusMsg.style.display = 'block';
+  statusMsg.style.background = 'rgba(59, 130, 246, 0.15)';
+  statusMsg.style.color = '#3B82F6';
+  statusMsg.textContent = 'Evaluating qualification, tailoring ATS resume PDF, and drafting executive cover letter...';
+
+  try {
+    const res = await fetch(`${API_BASE}/jobs/ingest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title,
+        company_name,
+        location,
+        source_url: source_url || 'https://www.linkedin.com/jobs/',
+        description,
+        seniority: 'Senior Manager / Director-track'
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || 'Ingestion failed');
+    }
+
+    statusMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+    statusMsg.style.color = 'var(--accent-emerald)';
+    statusMsg.textContent = `✓ Ingested successfully! Fit Match: ${data.match_report.overall_fit_label} (${Math.round(data.match_report.match_score * 100)}%). Tailored ATS Resume generated!`;
+
+    setTimeout(() => {
+      closeModal('modal-ingest-job');
+      switchTab('tab-matches');
+      loadOpportunitiesRadar();
+      loadPipeline();
+      refreshTelemetry();
+    }, 1200);
+  } catch (err) {
+    statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+    statusMsg.style.color = '#F43F5E';
+    statusMsg.textContent = 'Error: ' + err.message;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = '🚀 Ingest & Tailor Application';
+  }
+}
+
+// 9. Add Real Contact Modal Handlers
+function openAddContactModal(companyName) {
+  document.getElementById('contact-full-name').value = '';
+  document.getElementById('contact-company-name').value = companyName || '';
+  document.getElementById('contact-job-title').value = '';
+  document.getElementById('contact-role-category').value = 'hiring_manager';
+  document.getElementById('contact-linkedin-url').value = '';
+  document.getElementById('contact-email').value = '';
+  document.getElementById('contact-notes').value = '';
+  const statusMsg = document.getElementById('add-contact-status-msg');
+  if (statusMsg) statusMsg.style.display = 'none';
+  document.getElementById('modal-add-contact').classList.add('active');
+}
+
+async function submitAddContact() {
+  const full_name = document.getElementById('contact-full-name').value.trim();
+  const company_name = document.getElementById('contact-company-name').value.trim();
+  const job_title = document.getElementById('contact-job-title').value.trim();
+  const role_category = document.getElementById('contact-role-category').value;
+  const linkedin_url = document.getElementById('contact-linkedin-url').value.trim();
+  const email = document.getElementById('contact-email').value.trim();
+  const notes = document.getElementById('contact-notes').value.trim();
+  const statusMsg = document.getElementById('add-contact-status-msg');
+  const submitBtn = document.getElementById('btn-submit-contact');
+
+  if (!full_name || !company_name) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+    statusMsg.style.color = '#F43F5E';
+    statusMsg.textContent = 'Please enter both Full Name and Company Name.';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saving & Drafting Outreach...';
+
+  try {
+    const res = await fetch(`${API_BASE}/contacts/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name,
+        company_name,
+        job_title: job_title || 'Executive Leader',
+        role_category,
+        linkedin_url: linkedin_url || null,
+        email: email || null,
+        notes: notes || 'Verified real professional'
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || 'Failed to add contact');
+    }
+
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+    statusMsg.style.color = 'var(--accent-emerald)';
+    statusMsg.textContent = '✓ Real contact saved! Bespoke executive outreach drafted successfully.';
+
+    setTimeout(() => {
+      closeModal('modal-add-contact');
+      switchTab('tab-contacts');
+      loadContacts();
+      refreshTelemetry();
+    }, 1200);
+  } catch (err) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+    statusMsg.style.color = '#F43F5E';
+    statusMsg.textContent = 'Error: ' + err.message;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = '✨ Save & Generate Bespoke Outreach';
+  }
+}
+

@@ -5,6 +5,10 @@ from backend.main import app
 class TestAPIEndpoints(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        from backend.db.database import init_db
+        from backend.db.seed import seed_database
+        init_db()
+        seed_database()
         cls.client = TestClient(app)
 
     def test_candidate_endpoint(self):
@@ -23,7 +27,22 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertIn("action_required", data)
         self.assertIn("metrics", data)
 
-    def test_jobs_endpoint(self):
+    def test_job_ingest_and_discovery(self):
+        # Test real job ingestion
+        payload = {
+            "title": "Senior Asset Manager – Commercial & Retail",
+            "company_name": "Brookfield Asset Management",
+            "location": "Dubai, UAE",
+            "source_url": "https://www.brookfield.com/careers",
+            "description": "Lead commercial asset management and leasing for prime Dubai portfolio. Requires 15+ years experience and AED 500M+ portfolio track record."
+        }
+        res = self.client.post("/api/jobs/ingest", json=payload)
+        self.assertEqual(res.status_code, 200)
+        ingested = res.json()
+        self.assertEqual(ingested["status"], "ingested")
+        self.assertIn("match_report", ingested)
+
+        # Now test listing jobs
         response = self.client.get("/api/jobs")
         self.assertEqual(response.status_code, 200)
         jobs = response.json()

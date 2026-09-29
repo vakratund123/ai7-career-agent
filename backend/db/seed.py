@@ -150,155 +150,80 @@ TARGET_COMPANIES_DATA = [
         "footprint": "DIFC Dubai office, institutional asset allocation and real estate investment products.",
         "careers_url": "https://www.fidelityrecruitment.com/",
         "notes": "Real Estate Securities & Alternatives Asset Management."
+    },
+    {
+        "name": "Brookfield Asset Management",
+        "industry": "Global Alternative Asset Management & Prime Real Estate",
+        "priority": 1,
+        "footprint": "ICD Brookfield Place (DIFC Dubai), premier GCC asset management and real estate portfolio hub.",
+        "careers_url": "https://www.brookfield.com/careers",
+        "notes": "Direct alignment with senior asset management, high-value commercial leasing, and mixed-use portfolios."
+    },
+    {
+        "name": "Aldar Properties",
+        "industry": "Real Estate Development & Asset Management",
+        "priority": 1,
+        "footprint": "Abu Dhabi HQ & major Dubai expansion, largest listed developer and asset manager in the UAE.",
+        "careers_url": "https://www.aldar.com/en/careers",
+        "notes": "Managing extensive retail, commercial, and mixed-use real estate portfolios across UAE."
+    },
+    {
+        "name": "Emaar Properties",
+        "industry": "Master Developer & Commercial Asset Management",
+        "priority": 1,
+        "footprint": "Downtown Dubai & Dubai Hills, iconic mixed-use developments (Burj Khalifa, Dubai Mall).",
+        "careers_url": "https://properties.emaar.com/en/careers/",
+        "notes": "High demand for senior commercial leasing and retail asset management leaders."
+    },
+    {
+        "name": "Dubai Holding / Meraas",
+        "industry": "Sovereign Conglomerate & Mixed-Use Asset Management",
+        "priority": 1,
+        "footprint": "Dubai across Bluewaters, City Walk, JBR, Madinat Jumeirah, and commercial business districts.",
+        "careers_url": "https://dubaiholding.com/en/careers/",
+        "notes": "Premier retail and urban mixed-use commercial asset portfolios."
+    },
+    {
+        "name": "Majid Al Futtaim",
+        "industry": "Retail & Mixed-Use Real Estate Communities",
+        "priority": 1,
+        "footprint": "Dubai HQ, Mall of the Emirates, City Centre malls, and Tilal Al Ghaf communities.",
+        "careers_url": "https://www.majidalfuttaim.com/en/careers",
+        "notes": "Senior portfolio asset management, commercial development, and retail leasing."
+    },
+    {
+        "name": "JLL Middle East",
+        "industry": "Commercial Real Estate Advisory & Asset Management",
+        "priority": 2,
+        "footprint": "Dubai DIFC & Downtown, regional leader in property advisory, leasing, and asset strategies.",
+        "careers_url": "https://www.jll.co.ae/en/careers",
+        "notes": "Corporate real estate advisory and strategic leasing."
+    },
+    {
+        "name": "CBRE Middle East",
+        "industry": "Real Estate Services & Investment Management",
+        "priority": 2,
+        "footprint": "Dubai Building 6 Emaar Square, premier global advisory for UAE asset transactions and leasing.",
+        "careers_url": "https://www.cbre.ae/careers",
+        "notes": "Strategic commercial leasing and portfolio valuation."
+    },
+    {
+        "name": "Colliers Middle East",
+        "industry": "Real Estate Services & Asset Valuation",
+        "priority": 2,
+        "footprint": "DIFC Dubai, specialized in MENA asset management, retail planning, and valuations.",
+        "careers_url": "https://www.colliers.com/en-ae/careers",
+        "notes": "Asset management and commercial feasibility advisory."
     }
 ]
 
-INITIAL_JOBS_DATA = [
-    {
-        "company_name": "Blackstone",
-        "title": "Senior Asset Manager – Real Estate (GCC & MENA)",
-        "location": "Dubai, UAE (DIFC)",
-        "source_url": "https://www.blackstone.com/careers/job-req-dxb-8821",
-        "source_type": "company_career_page",
-        "seniority": "Senior Manager / Director-Track",
-        "description": """Blackstone Real Estate is seeking an experienced Senior Asset Manager based in Dubai to drive value enhancement, commercial leasing strategy, and operational performance across our growing commercial and mixed-use property portfolio in the UAE and GCC.
-Key Responsibilities:
-- Formulate and execute asset strategy, tenant-mix planning, and NOI optimization for prime commercial, retail, and mixed-use assets.
-- Lead commercial lease structuring and complex negotiations with institutional occupiers and regional developers.
-- Manage financial modeling, CAPEX budgeting, five-year strategic business plans, and cash flow forecasts.
-- Conduct demographic, footfall, and catchment feasibility studies for asset repositioning.
-- Maintain rigorous governance, risk compliance, and alignment with UAE RERA legal standards.
-Requirements:
-- 15+ years of extensive real estate asset management and commercial leasing experience in the UAE.
-- Proven track record managing large-scale portfolios (AED 500M+).
-- Demonstrable experience negotiating hundreds of commercial leases and driving occupancy.
-- Deep network with developers, landlords, and corporate tenants across Dubai.
-- Strong proficiency in financial modeling, yield analysis, and CAPEX planning in Excel.
-- Fluency in English; multilingual proficiency in Hindi/Urdu is an advantage."""
-    },
-    {
-        "company_name": "BlackRock",
-        "title": "Real Estate Portfolio Manager – Asset Management & Expansion",
-        "location": "Dubai, UAE",
-        "source_url": "https://careers.blackrock.com/job/r240982-dubai",
-        "source_type": "company_career_page",
-        "seniority": "Senior Manager",
-        "description": """BlackRock's Real Estate Investment & Asset Management division in Dubai is looking for a Real Estate Portfolio Manager to supervise asset positioning, tenant acquisition, and portfolio performance across regional retail and commercial properties.
-Key Responsibilities:
-- Oversee commercial asset performance, portfolio yield, and lease renewals.
-- Structure high-value commercial agreements balancing long-term valuation with tenant retention.
-- Oversee CAPEX allocations, expenditure budgets, and stakeholder governance.
-- Coordinate feasibility evaluations and demographic catchment reviews for retail and commercial properties.
-Requirements:
-- 12+ years experience in UAE commercial real estate and asset management.
-- Experience with luxury retail, B2B commercial, and mixed-use developments.
-- Demonstrated success in evaluating commercial locations and managing tenant relationships.
-- RERA certification or professional real estate affiliations strongly preferred."""
-    },
-    {
-        "company_name": "Goldman Sachs",
-        "title": "Vice President / Senior Manager – Real Estate Asset Management",
-        "location": "Dubai, UAE",
-        "source_url": "https://www.goldmansachs.com/careers/job-55412-dxb",
-        "source_type": "company_career_page",
-        "seniority": "Senior Manager / VP",
-        "description": """Goldman Sachs Asset Management Real Estate division is seeking a senior professional to direct commercial portfolio strategy and value-add asset management across Dubai and regional GCC assets.
-Responsibilities:
-- Drive asset lifecycle strategies including positioning, leasing, capital improvements, and disposal readiness.
-- Partner with master developers and corporate tenants to execute multi-million AED leasing transactions.
-- Review and refine financial feasibility models, NOI forecasts, and investment committee decks.
-- Guide cross-functional property operations and ensure compliance with Dubai RERA guidelines.
-Qualifications:
-- 15+ years in senior real estate leadership in UAE.
-- Documented portfolio management experience exceeding AED 500M.
-- Superior negotiation skills across commercial and retail sectors."""
-    },
-    {
-        "company_name": "Etihad Airways",
-        "title": "Head of Commercial Real Estate & Property Leasing",
-        "location": "Abu Dhabi / Dubai, UAE",
-        "source_url": "https://careers.etihad.com/job/dxb-cre-09",
-        "source_type": "company_career_page",
-        "seniority": "Senior Manager / Head",
-        "description": """Etihad Airways is seeking a Commercial Real Estate Manager to lead property leasing, tenant strategy, and asset optimization across our real estate portfolio and corporate commercial assets across the UAE.
-Responsibilities:
-- Direct lease negotiations, tenant acquisition, and contract administration for commercial property assets.
-- Manage CAPEX budgets, property maintenance operations, and tenancy compliance.
-- Evaluate commercial feasibility and retail mix optimization for high-footfall assets.
-Requirements:
-- 15+ years UAE real estate and leasing experience.
-- Deep expertise in RERA compliance and commercial contracts."""
-    },
-    {
-        "company_name": "Amazon",
-        "title": "Corporate Real Estate Manager – MENA Portfolio Strategy",
-        "location": "Dubai, UAE",
-        "source_url": "https://www.amazon.jobs/en/jobs/259104/corporate-real-estate-manager",
-        "source_type": "company_career_page",
-        "seniority": "Manager / Senior Manager",
-        "description": """Amazon Global Real Estate and Facilities (GREF) is looking for a Corporate Real Estate Manager to oversee our leasehold commercial real estate portfolio across MENA, with primary focus on the UAE.
-Responsibilities:
-- Lead lease acquisitions, renewals, and landlord relationship management across hundreds of thousands of square feet of corporate office and operational spaces.
-- Manage multi-year CAPEX budgets and five-year occupancy strategy.
-- Negotiate complex lease agreements with developers and government-backed master entities.
-Requirements:
-- 10+ years in commercial real estate leasing and asset management in Dubai.
-- Strong quantitative background in financial planning and portfolio forecasting."""
-    }
-]
+# Strict 100% Real Rule: No fabricated jobs or synthetic benchmark profiles.
+# Users ingest verified live postings via the Ingestion Engine.
+INITIAL_JOBS_DATA = []
 
-INITIAL_CONTACTS_DATA = [
-    {
-        "company_name": "Blackstone",
-        "full_name": "Marcus Vance",
-        "job_title": "Managing Director, Head of Middle East Real Estate",
-        "role_category": "hiring_manager",
-        "email": "vance.m@blackstone.com",
-        "linkedin_url": "https://www.linkedin.com/in/marcus-vance-re-blackstone",
-        "confidence_level": "VERIFIED",
-        "notes": "Key decision maker for senior asset management and portfolio acquisitions in DIFC Dubai."
-    },
-    {
-        "company_name": "BlackRock",
-        "full_name": "Elena Rostova",
-        "job_title": "Director – Real Estate Asset Management EMEA / GCC",
-        "role_category": "hiring_manager",
-        "email": "elena.rostova@blackrock.com",
-        "linkedin_url": "https://www.linkedin.com/in/elena-rostova-blackrock",
-        "confidence_level": "VERIFIED",
-        "notes": "Directs commercial asset portfolios and hiring in Dubai/ADGM."
-    },
-    {
-        "company_name": "Goldman Sachs",
-        "full_name": "Tariq Al-Mansoor",
-        "job_title": "Managing Director, Real Estate Principal Investment Area",
-        "role_category": "department_leader",
-        "email": "tariq.almansoor@gs.com",
-        "linkedin_url": "https://www.linkedin.com/in/tariq-almansoor-gs",
-        "confidence_level": "HIGH_PROBABILITY",
-        "notes": "Leads GCC real estate deals and asset strategy from DIFC."
-    },
-    {
-        "company_name": "Etihad Airways",
-        "full_name": "Khalid Al-Hashemi",
-        "job_title": "Vice President – Corporate Real Estate & Facilities",
-        "role_category": "hiring_manager",
-        "email": "khashemi@etihad.ae",
-        "linkedin_url": "https://www.linkedin.com/in/khalid-hashemi-etihad",
-        "confidence_level": "VERIFIED",
-        "notes": "Oversees property leasing and corporate assets."
-    },
-    {
-        "company_name": "Amazon",
-        "full_name": "Sarah Jenkins",
-        "job_title": "Senior Manager – MENA Talent Acquisition (Operations & Real Estate)",
-        "role_category": "recruiter",
-        "email": "jenkisa@amazon.com",
-        "linkedin_url": "https://www.linkedin.com/in/sarah-jenkins-amazon-mena",
-        "confidence_level": "VERIFIED",
-        "notes": "Primary recruiter for UAE Corporate Real Estate roles."
-    }
-]
+# Strict 100% Real Rule: No synthetic people or fictitious LinkedIn URLs.
+# Real professional contacts are added by the candidate or linked directly to live LinkedIn searches.
+INITIAL_CONTACTS_DATA = []
 
 def seed_database():
     """Seeds the database with companies, candidate facts, target roles, and baseline jobs."""

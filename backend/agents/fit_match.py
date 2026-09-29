@@ -1,7 +1,7 @@
 import logging
 import json
 import uuid
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from backend.db.database import get_db
 
 logger = logging.getLogger("ai7.agent.fit_match")

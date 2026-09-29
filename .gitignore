@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+.env
+.venv/
+env/
+venv/
+data/cloudflared.exe
+data/live_url.txt
+.pytest_cache/

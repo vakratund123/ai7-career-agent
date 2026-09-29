@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI7 Career Agent — Autonomous Career Operating System</title>
+  <meta name="description" content="Production-grade autonomous AI career acquisition platform for executive real estate and asset management.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-badge">AI7</div>
+      <div class="brand-info">
+        <h1>
+          Career Agent
+          <span class="status-pill"><span class="pulse-dot"></span> 16 Agents Operating</span>
+        </h1>
+      </div>
+      <div class="candidate-pill">
+        <div class="candidate-avatar">VJ</div>
+        <div class="candidate-meta">
+          <div class="name" id="hdr-candidate-name">V. Jagannath</div>
+          <div class="role" id="hdr-candidate-role">Senior Manager – Asset Management & Portfolio Development</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="autonomy-control">
+        <span>Autonomy:</span>
+        <select id="autonomy-selector" onchange="updateAutonomyLevel(this.value)">
+          <option value="1">Level 1 — Copilot</option>
+          <option value="2" selected>Level 2 — AI-First [Default]</option>
+          <option value="3">Level 3 — High Autonomy</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="btn-run-cycle" onclick="triggerAutonomousLoop()">
+        <span id="cycle-btn-icon">⚡</span>
+        <span id="cycle-btn-text">Run Career Scout Loop</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Executive Daily Briefing Banner -->
+  <section class="briefing-banner" id="briefing-banner">
+    <div class="briefing-main">
+      <h2><span>📋</span> Daily Executive Briefing</h2>
+      <div class="briefing-summary" id="briefing-text">
+        Loading real-time autonomous career telemetry for V. Jagannath...
+      </div>
+    </div>
+    <div class="action-required-badge" id="action-badge">
+      <span>🔔</span>
+      <div id="action-required-text">Analyzing active pipeline...</div>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+  <nav class="tab-navigation">
+    <button class="tab-button active" onclick="switchTab('tab-dashboard')">
+      <span>🎯</span> Command Center
+    </button>
+    <button class="tab-button" onclick="switchTab('tab-pipeline')">
+      <span>📊</span> Career Pipeline <span class="tab-count" id="badge-pipeline-count">0</span>
+    </button>
+    <button class="tab-button" onclick="switchTab('tab-matches')">
+      <span>🔍</span> Opportunity & Evidence Radar
+    </button>
+    <button class="tab-button" onclick="switchTab('tab-resumes')">
+      <span>📑</span> Tailored Resumes & Packets
+    </button>
+    <button class="tab-button" onclick="switchTab('tab-brain')">
+      <span>🧠</span> Career Brain (Verified Provenance)
+    </button>
+    <button class="tab-button" onclick="switchTab('tab-interviews')">
+      <span>🎙️</span> Interview Intelligence
+    </button>
+    <button class="tab-button" onclick="switchTab('tab-approvals')">
+      <span>🛡️</span> Approvals & Exceptions <span class="tab-count" id="badge-approvals-count">0</span>
+    </button>
+    <button class="tab-button" onclick="switchTab('tab-integrations')">
+      <span>🔗</span> Accounts & Live Dispatch <span class="tab-count" id="badge-integrations-status" style="background: rgba(244,63,94,0.2); color: #F43F5E;">OFFLINE</span>
+    </button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- TAB 1: COMMAND CENTER -->
+    <div class="tab-content active" id="tab-dashboard">
+      <!-- KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-title">
+            <span>Discovered Roles</span>
+            <span>📍</span>
+          </div>
+          <div class="metric-value kpi-val" id="kpi-discovered">0</div>
+          <div class="kpi-sub">Target institutional firms in Dubai/GCC</div>
+        </div>
+
+        <div class="kpi-card kpi-emerald">
+          <div class="kpi-title">
+            <span>Qualified Pipeline</span>
+            <span>✅</span>
+          </div>
+          <div class="metric-value kpi-val" id="kpi-qualified">0</div>
+          <div class="kpi-sub">Evidence-matched against AED 800M scope</div>
+        </div>
+
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-title">
+            <span>Applications Ready</span>
+            <span>📑</span>
+          </div>
+          <div class="metric-value kpi-val" id="kpi-applications">0</div>
+          <div class="kpi-sub">Tailored ReportLab PDF resumes built</div>
+        </div>
+
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-title">
+            <span>Outreach Dispatched</span>
+            <span>✉️</span>
+          </div>
+          <div class="metric-value kpi-val" id="kpi-outreach">0</div>
+          <div class="kpi-sub">Targeting verified UAE real estate leads</div>
+        </div>
+
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-title">
+            <span>Interview Pipelines</span>
+            <span>🎙️</span>
+          </div>
+          <div class="metric-value kpi-val" id="kpi-interviews">0</div>
+          <div class="kpi-sub">Dossiers & STAR stories mapped</div>
+        </div>
+      </div>
+
+      <!-- Dashboard Columns: Activity Stream + Quick Controls -->
+      <div class="dashboard-columns">
+        <!-- Live AI Activity Stream -->
+        <div class="section-panel">
+          <div class="panel-header">
+            <h3><span>⚡</span> Live AI Multi-Agent Activity Stream</h3>
+            <span class="status-pill"><span class="pulse-dot"></span> Real-time Event Bus</span>
+          </div>
+          <div class="activity-stream" id="activity-stream">
+            <!-- Populated dynamically -->
+            <div style="color: var(--text-muted); text-align: center; padding: 2rem;">Connecting to agent telemetry...</div>
+          </div>
+        </div>
+
+        <!-- Right Column: Target Companies & Safety Controls -->
+        <div>
+          <div class="section-panel">
+            <div class="panel-header">
+              <h3><span>🏛️</span> Target Institutional Employers</h3>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+              Monitoring 18 global and regional real estate investment organizations:
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;" id="company-chips">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <div class="section-panel">
+            <div class="panel-header">
+              <h3><span>🛡️</span> Autonomous Safety Status</h3>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+              <div>• <b>Autonomy Mode:</b> <span id="safety-autonomy-mode" style="color: var(--accent-gold);">Level 2 (AI-First)</span></div>
+              <div>• <b>Anti-Spam Shield:</b> Max 4 contacts / company, 6-day cooldown</div>
+              <div>• <b>Zero Hallucination:</b> 100% Provenance verification enforced</div>
+              <div>• <b>Sensitive Gates:</b> Salary & contracts require human approval</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: PIPELINE KANBAN -->
+    <div class="tab-content" id="tab-pipeline">
+      <div class="kanban-board" id="kanban-board">
+        <!-- Columns: DISCOVERED, QUALIFIED, APPLICATION_READY, OUTREACH, INTERVIEW, OFFER -->
+      </div>
+    </div>
+
+    <!-- TAB 3: OPPORTUNITY & EVIDENCE RADAR -->
+    <div class="tab-content" id="tab-matches">
+      <div class="section-panel">
+        <div class="panel-header">
+          <h3><span>🔍</span> Evidence-Based Qualification & Gap Analysis</h3>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Grounded strictly in Candidate Brain facts — No arbitrary scores</span>
+        </div>
+        <div id="matches-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: TAILORED RESUMES & DOCUMENT HUB -->
+    <div class="tab-content" id="tab-resumes">
+      <div class="section-panel">
+        <div class="panel-header">
+          <h3><span>📑</span> Versioned PDF Resumes & Application Packets</h3>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Generated via ReportLab — Zero Fact Alteration</span>
+        </div>
+        <div id="resumes-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: CAREER BRAIN (VERIFIED FACT STORE) -->
+    <div class="tab-content" id="tab-brain">
+      <div class="section-panel">
+        <div class="panel-header">
+          <h3><span>🧠</span> Career Brain Knowledge Graph</h3>
+          <span style="font-size: 0.8rem; color: var(--accent-emerald);">Authoritative CV Ingested: 100% Provenance Verified</span>
+        </div>
+        <div class="facts-grid" id="facts-grid">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: INTERVIEW INTELLIGENCE -->
+    <div class="tab-content" id="tab-interviews">
+      <div class="section-panel">
+        <div class="panel-header">
+          <h3><span>🎙️</span> Executive Interview Preparation Cockpit</h3>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);">Mapped STAR stories, domain questions & debrief engine</span>
+        </div>
+        <div id="interviews-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: APPROVALS & EXCEPTIONS -->
+    <div class="tab-content" id="tab-approvals">
+      <div class="section-panel">
+        <div class="panel-header">
+          <h3><span>🛡️</span> Human Escalation & Approvals Queue</h3>
+          <span style="font-size: 0.8rem; color: var(--accent-gold);">Exception-First Architecture: You decide on material items</span>
+        </div>
+        <div id="approvals-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 8: ACCOUNTS & LIVE DISPATCH -->
+    <div class="tab-content" id="tab-integrations">
+      <div class="section-panel" style="border-left: 3px solid var(--accent-gold);">
+        <div class="panel-header">
+          <h3><span>🔗</span> Live Outbound Transmission & Autonomous Dispatch Engine</h3>
+          <span class="status-pill" id="live-dispatch-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E; border-color: rgba(244,63,94,0.3);">
+            ⚠️ Staging Mode (Credentials Pending)
+          </span>
+        </div>
+        <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
+          <b>How Actual Autonomy Works:</b> For the AI agents to autonomously reach out to recruiters, hiring managers, and department heads on behalf of <b>V. Jagannath</b>, connect your <b>Gmail</b> (for real email delivery from <code>v.jagannath3@gmail.com</code> and continuous inbox response monitoring) and/or your <b>LinkedIn session</b> (for direct InMails and network outreach).
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          
+          <!-- Gmail Account Card -->
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <span>📧</span> Google / Gmail Integration
+              </h4>
+              <span class="status-pill" id="gmail-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+              Enables <b>Outreach Agent</b> to transmit live emails and <b>Inbox Agent</b> to monitor incoming recruiter replies & interview scheduling requests via IMAP.
+            </div>
+
+            <div style="margin-bottom: 0.85rem;">
+              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Candidate Email Address:</label>
+              <input type="email" id="input-gmail-addr" value="v.jagannath3@gmail.com" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Google App Password (16 characters):</label>
+              <input type="password" id="input-gmail-pwd" placeholder="e.g. abcd efgh ijkl mnop" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
+                💡 <b>Fast Setup:</b> Google Account &gt; Security &gt; 2-Step Verification &gt; App Passwords &gt; Generate for "Mail" &gt; Paste the 16-character password here.
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem;">
+              <button class="btn-primary" onclick="connectGmailAccount()">✓ Connect & Verify Gmail</button>
+              <button class="btn-secondary" onclick="syncLiveInbox()">🔄 Sync Inbox (IMAP)</button>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+              <div style="font-size: 0.78rem; font-weight: 600; color: var(--accent-gold); margin-bottom: 0.4rem;">Send Live Test Email:</div>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="email" id="input-test-recipient" placeholder="Recipient (e.g. your email)" style="flex: 1; padding: 0.5rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.8rem;">
+                <button class="btn-secondary" onclick="sendTestEmail()">Send Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- LinkedIn Account Card -->
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <span>💼</span> LinkedIn Autonomous Dispatch
+              </h4>
+              <span class="status-pill" id="linkedin-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+              Enables <b>Outreach Agent</b> to dispatch personalized InMails and connection requests directly from <b>V. Jagannath's</b> LinkedIn profile.
+            </div>
+
+            <div style="margin-bottom: 0.85rem;">
+              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">LinkedIn Profile URL:</label>
+              <input type="url" id="input-linkedin-url" value="https://www.linkedin.com/in/v-jagannath-re" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">LinkedIn Session Cookie (<code>li_at</code>) or Auth Token:</label>
+              <input type="password" id="input-linkedin-cookie" placeholder="Paste li_at cookie value..." style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
+                💡 <b>How to get <code>li_at</code>:</b> Log into LinkedIn in browser &gt; Press F12 &gt; Application &gt; Cookies &gt; linkedin.com &gt; Copy <code>li_at</code> value.
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.6rem; margin-bottom: 1rem;">
+              <button class="btn-primary" onclick="connectLinkedInAccount()">✓ Connect & Verify LinkedIn</button>
+            </div>
+
+            <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 0.85rem; margin-top: 1.25rem;">
+              <div style="font-size: 0.8rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 0.25rem;">Autonomous Rate-Limit Shield:</div>
+              <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.4;">
+                Protects Jagannath's LinkedIn standing: Max 20 personalized connection notes/week, humanized jitter timing, zero spam boilerplate.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modals -->
+  <!-- 1. Job Evidence Inspector Modal -->
+  <div class="modal-backdrop" id="modal-match" onclick="closeModal('modal-match', event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-match-title">Opportunity Fit & Evidence Report</h2>
+          <div id="modal-match-company" style="color: var(--accent-gold); font-size: 0.9rem; font-weight: 600;"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-match')">&times;</button>
+      </div>
+      <div id="modal-match-body"></div>
+    </div>
+  </div>
+
+  <!-- 2. Application Packet Viewer Modal -->
+  <div class="modal-backdrop" id="modal-app" onclick="closeModal('modal-app', event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-app-title">Application Packet & Cover Letter</h2>
+          <div id="modal-app-company" style="color: var(--accent-gold); font-size: 0.9rem; font-weight: 600;"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-app')">&times;</button>
+      </div>
+      <div id="modal-app-body"></div>
+    </div>
+  </div>
+
+  <!-- 3. Interview Dossier Modal -->
+  <div class="modal-backdrop" id="modal-interview" onclick="closeModal('modal-interview', event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-interview-title">Executive Interview Dossier</h2>
+          <div id="modal-interview-company" style="color: var(--accent-gold); font-size: 0.9rem; font-weight: 600;"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-interview')">&times;</button>
+      </div>
+      <div id="modal-interview-body"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

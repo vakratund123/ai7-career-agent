@@ -71,6 +71,9 @@
     <button class="tab-button" onclick="switchTab('tab-matches')">
       <span>🔍</span> Opportunity & Evidence Radar
     </button>
+    <button class="tab-button" onclick="switchTab('tab-contacts')">
+      <span>👥</span> Contacts & Outreach <span class="tab-count" id="badge-contacts-count">0</span>
+    </button>
     <button class="tab-button" onclick="switchTab('tab-resumes')">
       <span>📑</span> Tailored Resumes & Packets
     </button>
@@ -200,6 +203,28 @@
         </div>
         <div id="matches-list">
           <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: DECISION MAKERS & OUTREACH -->
+    <div class="tab-content" id="tab-contacts">
+      <div class="section-panel" style="border-left: 3px solid var(--accent-gold);">
+        <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h3><span>👥</span> Key Decision Makers & Outbound Communications</h3>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem;">
+              Verified Hiring Managers, Managing Directors, and Talent Leaders receiving personalized executive outreach on behalf of <b>V. Jagannath</b>.
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="text" id="contact-search-input" placeholder="Search by name, company, or role..." oninput="filterContacts(this.value)" style="padding: 0.45rem 0.85rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem; min-width: 260px;">
+          </div>
+        </div>
+
+        <!-- Contacts Grid -->
+        <div id="contacts-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.25rem; margin-top: 1.25rem;">
+          <!-- Populated dynamically via loadContacts() -->
         </div>
       </div>
     </div>

@@ -132,6 +132,26 @@ def download_document(filename: str):
     return FileResponse(path=str(file_path), filename=filename, media_type='application/pdf')
 
 # Contacts & Outreach
+@router.get("/contacts")
+def list_contacts():
+    with get_db() as conn:
+        rows = conn.execute("""
+            SELECT c.*, 
+                   comp.dubai_uae_footprint,
+                   o.id as outreach_id,
+                   o.channel as outreach_channel,
+                   o.subject as outreach_subject,
+                   o.message_body as outreach_message_body,
+                   o.status as outreach_status,
+                   o.outreach_type as outreach_type,
+                   o.sent_at as outreach_sent_at
+            FROM contacts c
+            LEFT JOIN companies comp ON c.company_name = comp.company_name
+            LEFT JOIN outreach_campaigns o ON c.id = o.contact_id
+            ORDER BY c.company_name ASC, c.full_name ASC
+        """).fetchall()
+        return [dict(r) for r in rows]
+
 @router.post("/contacts/discover")
 def discover_contacts(company_name: str):
     return contact_intelligence_agent.discover_contacts_for_company(company_name)

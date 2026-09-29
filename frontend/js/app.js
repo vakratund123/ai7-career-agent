@@ -18,6 +18,7 @@ async function initApp() {
     loadPipeline(),
     loadActivityStream(),
     loadSettings(),
+    loadContacts(),
     loadInterviews(),
     loadApprovals(),
     loadIntegrationsStatus()
@@ -29,6 +30,7 @@ async function refreshTelemetry() {
     loadBriefing(),
     loadPipeline(),
     loadActivityStream(),
+    loadContacts(),
     loadApprovals(),
     loadIntegrationsStatus()
   ]);
@@ -52,12 +54,14 @@ function switchTab(tabId) {
 
   // Trigger tab-specific loads
   if (tabId === 'tab-matches') loadOpportunitiesRadar();
+  if (tabId === 'tab-contacts') loadContacts();
   if (tabId === 'tab-resumes') loadTailoredResumes();
   if (tabId === 'tab-brain') loadCareerBrain();
   if (tabId === 'tab-interviews') loadInterviews();
   if (tabId === 'tab-approvals') loadApprovals();
   if (tabId === 'tab-integrations') loadIntegrationsStatus();
 }
+
 
 // 1. Executive Briefing
 async function loadBriefing() {
@@ -349,6 +353,192 @@ async function loadTailoredResumes() {
   }
 }
 
+// 7B. Executive Contacts & Outreach Communications
+window._allContacts = [];
+
+async function loadContacts() {
+  try {
+    const res = await fetch(`${API_BASE}/contacts`);
+    const contacts = await res.json();
+    window._allContacts = contacts;
+
+    const countBadge = document.getElementById('badge-contacts-count');
+    if (countBadge) countBadge.textContent = contacts.length;
+
+    renderContactsGrid(contacts);
+  } catch (err) {
+    console.error('Failed to load contacts:', err);
+  }
+}
+
+function filterContacts(query) {
+  if (!window._allContacts) return;
+  const q = (query || '').toLowerCase().trim();
+  if (!q) {
+    renderContactsGrid(window._allContacts);
+    return;
+  }
+  const filtered = window._allContacts.filter(c => 
+    (c.full_name || '').toLowerCase().includes(q) ||
+    (c.company_name || '').toLowerCase().includes(q) ||
+    (c.job_title || '').toLowerCase().includes(q) ||
+    (c.email || '').toLowerCase().includes(q)
+  );
+  renderContactsGrid(filtered);
+}
+
+function copyToClipboard(text, btnElement) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    if (btnElement) {
+      const orig = btnElement.innerHTML;
+      btnElement.innerHTML = '✓ Copied!';
+      btnElement.style.borderColor = 'var(--accent-emerald)';
+      setTimeout(() => {
+        btnElement.innerHTML = orig;
+        btnElement.style.borderColor = '';
+      }, 2000);
+    }
+  }).catch(() => {
+    prompt('Copy text:', text);
+  });
+}
+
+function renderContactsGrid(contacts) {
+  const grid = document.getElementById('contacts-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  if (!contacts || contacts.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px dashed var(--border-color);">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+        <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">No contacts discovered yet</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);">Run the Career Scout Loop to automatically identify verified hiring managers and talent leaders.</div>
+      </div>
+    `;
+    return;
+  }
+
+  contacts.forEach(c => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    `;
+
+    const categoryColors = {
+      'hiring_manager': { bg: 'rgba(245, 158, 11, 0.15)', text: '#F59E0B', label: 'Hiring Manager' },
+      'recruiter': { bg: 'rgba(59, 130, 246, 0.15)', text: '#3B82F6', label: 'Talent Acquisition' },
+      'department_leader': { bg: 'rgba(16, 185, 129, 0.15)', text: '#10B981', label: 'Department Head' },
+      'referral': { bg: 'rgba(168, 85, 247, 0.15)', text: '#A855F7', label: 'Referral Contact' }
+    };
+    const cat = categoryColors[c.role_category] || { bg: 'rgba(255,255,255,0.1)', text: 'var(--text-secondary)', label: c.role_category || 'Contact' };
+
+    const initials = (c.full_name || 'C').split(' ').filter(p => p).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+
+    let emailHtml = '';
+    if (c.email) {
+      emailHtml = `
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem 0.85rem; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden;">
+            <span style="font-size: 0.95rem;">📧</span>
+            <span style="font-family: monospace; font-size: 0.82rem; color: var(--accent-gold); word-break: break-all;">${escapeHtml(c.email)}</span>
+          </div>
+          <div style="display: flex; gap: 0.35rem; flex-shrink: 0;">
+            <button class="btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;" onclick="copyToClipboard('${escapeHtml(c.email)}', this)">📋 Copy</button>
+            <a href="mailto:${escapeHtml(c.email)}?subject=${encodeURIComponent(c.outreach_subject || 'V. Jagannath — Executive Career Profile')}" class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; text-decoration: none; display: inline-flex; align-items: center;">✉️ Email</a>
+          </div>
+        </div>
+      `;
+    } else {
+      emailHtml = `
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px; padding: 0.55rem 0.85rem; font-size: 0.76rem; color: var(--text-muted);">
+          <span>ℹ️</span> Direct corporate email unindexed; mapped to verified LinkedIn InMail channel.
+        </div>
+      `;
+    }
+
+    let linkedinHtml = '';
+    if (c.linkedin_url) {
+      linkedinHtml = `
+        <a href="${escapeHtml(c.linkedin_url)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 6px; background: rgba(10, 102, 194, 0.15); border: 1px solid rgba(10, 102, 194, 0.35); color: #0A66C2; font-size: 0.78rem; font-weight: 600; text-decoration: none;">
+          <svg style="width: 13px; height: 13px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+          Open LinkedIn Profile ↗
+        </a>
+      `;
+    }
+
+    let outreachPreviewHtml = '';
+    if (c.outreach_message_body) {
+      outreachPreviewHtml = `
+        <div style="border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <div style="font-size: 0.76rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.35rem;">
+              <span>📝</span> Prepared Outbound Pitch
+              <span class="status-pill" style="font-size: 0.65rem; padding: 0.15rem 0.45rem;">${c.outreach_status || 'STAGED'}</span>
+            </div>
+            <button class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" onclick="copyToClipboard(decodeURIComponent('${encodeURIComponent(c.outreach_message_body)}'), this)">📋 Copy Pitch</button>
+          </div>
+          <div style="font-size: 0.74rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 0.35rem; line-height: 1.3;">
+            Subject: ${escapeHtml(c.outreach_subject || 'Executive Introduction — V. Jagannath')}
+          </div>
+          <details style="font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.3); border-radius: 6px; padding: 0.5rem 0.75rem; border: 1px solid rgba(255,255,255,0.05);">
+            <summary style="cursor: pointer; color: var(--accent-blue); font-weight: 600; font-size: 0.72rem; user-select: none;">
+              Show Tailored Message (${(c.outreach_channel || 'EMAIL')})
+            </summary>
+            <div style="margin-top: 0.5rem; white-space: pre-wrap; font-family: monospace; font-size: 0.73rem; line-height: 1.5; color: var(--text-secondary); max-height: 200px; overflow-y: auto; padding-right: 0.4rem;">
+${escapeHtml(c.outreach_message_body)}
+            </div>
+          </details>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem;">
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <div style="width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, rgba(212,175,55,0.25), rgba(59,130,246,0.25)); border: 1px solid var(--accent-gold); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--accent-gold); font-size: 0.95rem; flex-shrink: 0;">
+            ${initials}
+          </div>
+          <div>
+            <h4 style="font-size: 1rem; color: var(--text-primary); margin: 0; font-weight: 700;">${escapeHtml(c.full_name)}</h4>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.15rem; line-height: 1.3;">${escapeHtml(c.job_title)}</div>
+          </div>
+        </div>
+        <span style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 20px; background: ${cat.bg}; color: ${cat.text}; flex-shrink: 0;">
+          ${cat.label}
+        </span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 0.45rem 0.75rem; font-size: 0.76rem;">
+        <span style="font-weight: 700; color: var(--accent-gold);">${escapeHtml(c.company_name)}</span>
+        <span style="color: var(--text-muted); font-size: 0.72rem;">📍 Dubai / DIFC Presence</span>
+      </div>
+
+      ${emailHtml}
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+        ${linkedinHtml}
+        <span style="font-size: 0.7rem; color: var(--accent-emerald); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+          ✓ ${c.confidence_level || 'VERIFIED'}
+        </span>
+      </div>
+
+      ${outreachPreviewHtml}
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+
 // 8. Career Brain Fact Graph
 async function loadCareerBrain() {
   try {
@@ -587,7 +777,37 @@ async function openMatchInspector(jobId) {
       `).join('');
     }
     
+    const contacts = data.contacts || [];
+    let contactsHtml = '';
+    if (contacts.length > 0) {
+      contactsHtml = `
+        <div style="margin-bottom: 1.25rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem;">
+          <h4 style="font-size: 0.95rem; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span>👥</span> Key Decision Makers for this Opportunity
+          </h4>
+          <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            ${contacts.map(c => `
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 0.6rem 0.85rem; border-radius: 6px; gap: 0.5rem; flex-wrap: wrap;">
+                <div>
+                  <div style="font-weight: 700; color: var(--text-primary); font-size: 0.88rem;">${escapeHtml(c.full_name)}</div>
+                  <div style="font-size: 0.76rem; color: var(--text-secondary);">${escapeHtml(c.job_title)}</div>
+                  ${c.email ? `<div style="font-size: 0.74rem; color: var(--accent-gold); font-family: monospace; margin-top: 0.2rem;">📧 ${escapeHtml(c.email)}</div>` : ''}
+                </div>
+                <div style="display: flex; gap: 0.35rem; align-items: center;">
+                  ${c.email ? `<button class="btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;" onclick="copyToClipboard('${escapeHtml(c.email)}', this)">📋 Copy Email</button>` : ''}
+                  ${c.email ? `<a href="mailto:${escapeHtml(c.email)}" class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; text-decoration: none;">✉️ Email</a>` : ''}
+                  ${c.linkedin_url ? `<a href="${escapeHtml(c.linkedin_url)}" target="_blank" class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; text-decoration: none; background: rgba(10,102,194,0.3); border-color: #0A66C2;">LinkedIn ↗</a>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
     body.innerHTML = `
+      ${contactsHtml}
+
       <div style="margin-bottom: 1.25rem;">
         <h4 style="font-size: 0.95rem; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 0.5rem;">Verified Match Evidence</h4>
         ${matchHtml || '<div style="color: var(--text-muted);">No match areas evaluated yet.</div>'}

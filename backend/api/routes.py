@@ -72,8 +72,16 @@ class LinkedInConnectRequest(BaseModel):
 
 class TestEmailRequest(BaseModel):
     recipient: str
-    subject: Optional[str] = "AI7 Career Agent Test Transmission"
-    body: Optional[str] = "This is a verified test email dispatched autonomously by the AI7 Career Agent on behalf of V. Jagannath."
+    subject: Optional[str] = "Introduction: Real Estate Asset Management & Commercial Strategy — V. Jagannath"
+    body: Optional[str] = (
+        "Dear Colleague,\n\n"
+        "I hope this note finds you well.\n\n"
+        "I wanted to share a brief introduction to my background in UAE commercial asset management, retail leasing, and mixed-use portfolio development, having recently overseen 800,000 sq. ft. of prime space across One Za'abeel and the Deira Enrichment Project within an AED 800M portfolio mandate.\n\n"
+        "Please feel free to reach out if you would like to discuss strategic opportunities or review my full dossier.\n\n"
+        "Best regards,\n"
+        "V. Jagannath\n"
+        "+971 50 5099065 | v.jagannath3@gmail.com"
+    )
 
 class DisconnectRequest(BaseModel):
     service_name: str # "GMAIL" or "LINKEDIN"

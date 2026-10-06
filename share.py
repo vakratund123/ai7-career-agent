@@ -56,7 +56,13 @@ def main():
 
     backend_proc = ensure_backend(8001)
 
-    url_pattern = re.compile(r"(https://[a-zA-Z0-9-]+\.(?:serveousercontent\.com|serveo\.net|lhr\.life))")
+    cloudflared_bin = BASE_DIR / "cloudflared.exe"
+    if not cloudflared_bin.exists():
+        cloudflared_bin = BASE_DIR / "data" / "cloudflared.exe"
+
+    use_cloudflared = cloudflared_bin.exists()
+
+    url_pattern = re.compile(r"(https://[a-zA-Z0-9-]+\.(?:trycloudflare\.com|serveousercontent\.com|serveo\.net|lhr\.life))")
     reconnect_count = 0
 
     try:
@@ -66,17 +72,21 @@ def main():
                 print("[*] Restarting backend server...")
                 backend_proc = ensure_backend(8001)
 
-            server = "serveo.net"
-            print(f"[*] Connecting secure public HTTPS tunnel via {server} (attempt #{reconnect_count + 1})...")
+            if use_cloudflared:
+                print(f"[*] Connecting high-speed Cloudflare HTTPS tunnel (attempt #{reconnect_count + 1})...")
+                tunnel_cmd = [str(cloudflared_bin), "tunnel", "--url", "http://127.0.0.1:8001"]
+            else:
+                server = "serveo.net"
+                print(f"[*] Connecting secure public HTTPS tunnel via {server} (attempt #{reconnect_count + 1})...")
+                tunnel_cmd = [
+                    "ssh",
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "ServerAliveInterval=15",
+                    "-o", "ServerAliveCountMax=4",
+                    "-R", "80:127.0.0.1:8001",
+                    server
+                ]
 
-            tunnel_cmd = [
-                "ssh",
-                "-o", "StrictHostKeyChecking=no",
-                "-o", "ServerAliveInterval=15",
-                "-o", "ServerAliveCountMax=4",
-                "-R", f"80:127.0.0.1:8001",
-                server
-            ]
 
             tunnel_proc = subprocess.Popen(
                 tunnel_cmd,

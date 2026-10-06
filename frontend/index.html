@@ -33,8 +33,8 @@
       <div class="autonomy-control">
         <span>Autonomy:</span>
         <select id="autonomy-selector" onchange="updateAutonomyLevel(this.value)">
-          <option value="1">Level 1 — Copilot</option>
-          <option value="2" selected>Level 2 — AI-First [Default]</option>
+          <option value="1" selected>Level 1 — Copilot [Approval Required]</option>
+          <option value="2">Level 2 — AI-First</option>
           <option value="3">Level 3 — High Autonomy</option>
         </select>
       </div>
@@ -177,7 +177,7 @@
               <h3><span>🛡️</span> Autonomous Safety Status</h3>
             </div>
             <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
-              <div>• <b>Autonomy Mode:</b> <span id="safety-autonomy-mode" style="color: var(--accent-gold);">Level 2 (AI-First)</span></div>
+              <div>• <b>Autonomy Mode:</b> <span id="safety-autonomy-mode" style="color: var(--accent-gold);">Level 1 (Copilot)</span></div>
               <div>• <b>Anti-Spam Shield:</b> Max 4 contacts / company, 6-day cooldown</div>
               <div>• <b>Zero Hallucination:</b> 100% Provenance verification enforced</div>
               <div>• <b>Sensitive Gates:</b> Salary & contracts require human approval</div>
@@ -386,46 +386,62 @@
     <div class="tab-content" id="tab-integrations">
       <div class="section-panel" style="border-left: 3px solid var(--accent-gold);">
         <div class="panel-header">
-          <h3><span>🔗</span> Live Outbound Transmission & Autonomous Dispatch Engine</h3>
-          <span class="status-pill" id="live-dispatch-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E; border-color: rgba(244,63,94,0.3);">
-            ⚠️ Staging Mode (Credentials Pending)
-          </span>
+          <div>
+            <h3><span>🔗</span> Live Outbound Transmission & Autonomous Dispatch Engine</h3>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">
+              Manage verified email delivery (SMTP/IMAP) and direct professional LinkedIn outreach on behalf of <b>V. Jagannath</b>.
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-secondary" id="btn-sim-toggle" onclick="toggleSimulatedMode()" style="font-size: 0.76rem; padding: 0.4rem 0.85rem; border: 1px solid var(--accent-gold); color: var(--accent-gold);">
+              ⚡ Enable Sandbox / Simulation Mode
+            </button>
+            <span class="status-pill" id="live-dispatch-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E; border-color: rgba(244,63,94,0.3);">
+              ⚠️ Staging Mode (Credentials Pending)
+            </span>
+          </div>
         </div>
-        <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
-          <b>How Actual Autonomy Works:</b> For the AI agents to autonomously reach out to recruiters, hiring managers, and department heads on behalf of <b>V. Jagannath</b>, connect your <b>Gmail</b> (for real email delivery from <code>v.jagannath3@gmail.com</code> and continuous inbox response monitoring) and/or your <b>LinkedIn session</b> (for direct InMails and network outreach).
-        </div>
+
+        <div id="integrations-global-msg" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.82rem; line-height: 1.5;"></div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
           
           <!-- Gmail Account Card -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-              <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
-                <span>📧</span> Google / Gmail Integration
-              </h4>
-              <span class="status-pill" id="gmail-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
-            </div>
-
-            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
-              Enables <b>Outreach Agent</b> to transmit live emails and <b>Inbox Agent</b> to monitor incoming recruiter replies & interview scheduling requests via IMAP.
-            </div>
-
-            <div style="margin-bottom: 0.85rem;">
-              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Candidate Email Address:</label>
-              <input type="email" id="input-gmail-addr" value="v.jagannath3@gmail.com" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-            </div>
-
-            <div style="margin-bottom: 1rem;">
-              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Google App Password (16 characters):</label>
-              <input type="password" id="input-gmail-pwd" placeholder="e.g. abcd efgh ijkl mnop" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
-                💡 <b>Fast Setup:</b> Google Account &gt; Security &gt; 2-Step Verification &gt; App Passwords &gt; Generate for "Mail" &gt; Paste the 16-character password here.
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                  <span>📧</span> Google / Gmail Integration
+                </h4>
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span class="status-pill" id="gmail-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
+                </div>
               </div>
-            </div>
 
-            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem;">
-              <button class="btn-primary" onclick="connectGmailAccount()">✓ Connect & Verify Gmail</button>
-              <button class="btn-secondary" onclick="syncLiveInbox()">🔄 Sync Inbox (IMAP)</button>
+              <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
+                Enables <b>Outreach Agent</b> to transmit live executive emails via dual-port SMTP (SSL: 465 / STARTTLS: 587) and <b>Inbox Agent</b> to monitor recruiter replies via IMAP.
+              </div>
+
+              <div style="margin-bottom: 0.85rem;">
+                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Candidate Email Address:</label>
+                <input type="email" id="input-gmail-addr" value="v.jagannath3@gmail.com" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+              </div>
+
+              <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Google App Password (16 characters):</label>
+                <input type="password" id="input-gmail-pwd" placeholder="e.g. abcd efgh ijkl mnop" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
+                  💡 <b>Fast Setup:</b> Google Account &gt; Security &gt; 2-Step Verification &gt; App Passwords &gt; Generate for "Mail" &gt; Paste the 16-character password here.
+                </div>
+              </div>
+
+              <div id="gmail-status-msg" style="display: none; padding: 0.6rem 0.85rem; border-radius: 6px; font-size: 0.78rem; margin-bottom: 0.85rem; line-height: 1.4;"></div>
+
+              <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                <button class="btn-primary" id="btn-connect-gmail" onclick="connectGmailAccount()">✓ Connect & Verify Gmail</button>
+                <button class="btn-secondary" onclick="syncLiveInbox()">🔄 Sync Inbox (IMAP)</button>
+                <button class="btn-secondary" id="btn-disconnect-gmail" onclick="disconnectService('GMAIL')" style="display: none; color: #F43F5E;">Disconnect</button>
+              </div>
             </div>
 
             <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
@@ -438,39 +454,49 @@
           </div>
 
           <!-- LinkedIn Account Card -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-              <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
-                <span>💼</span> LinkedIn Autonomous Dispatch
-              </h4>
-              <span class="status-pill" id="linkedin-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
-            </div>
+          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                  <span>💼</span> LinkedIn Autonomous Dispatch
+                </h4>
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <span class="status-pill" id="linkedin-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
+                </div>
+              </div>
 
-            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
-              Enables <b>Outreach Agent</b> to dispatch personalized InMails and connection requests directly from <b>V. Jagannath's</b> LinkedIn profile.
-            </div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
+                Enables <b>Outreach Agent</b> to dispatch personalized InMails and executive connection requests directly from <b>V. Jagannath's</b> LinkedIn profile.
+              </div>
 
-            <div style="margin-bottom: 0.85rem;">
-              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">LinkedIn Profile URL:</label>
-              <input type="url" id="input-linkedin-url" value="https://www.linkedin.com/in/v-jagannath-re" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-            </div>
+              <div style="margin-bottom: 0.85rem;">
+                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Candidate LinkedIn Profile URL:</label>
+                <input type="url" id="input-linkedin-url" placeholder="https://www.linkedin.com/in/your-profile" value="" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+              </div>
 
-            <div style="margin-bottom: 1rem;">
-              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">LinkedIn Session Cookie (<code>li_at</code>) or Auth Token:</label>
-              <input type="password" id="input-linkedin-cookie" placeholder="Paste li_at cookie value..." style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
-                💡 <b>How to get <code>li_at</code>:</b> Log into LinkedIn in browser &gt; Press F12 &gt; Application &gt; Cookies &gt; linkedin.com &gt; Copy <code>li_at</code> value.
+              <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">LinkedIn Session Cookie (<code>li_at</code>) or Auth Token:</label>
+                <input type="password" id="input-linkedin-cookie" placeholder="Paste li_at cookie value..." style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
+                  💡 <b>How to get <code>li_at</code>:</b> Log into LinkedIn in your browser &gt; Press F12 &gt; Application &gt; Cookies &gt; <code>https://www.linkedin.com</code> &gt; Copy <code>li_at</code>.
+                </div>
+              </div>
+
+              <div id="linkedin-status-msg" style="display: none; padding: 0.6rem 0.85rem; border-radius: 6px; font-size: 0.78rem; margin-bottom: 0.85rem; line-height: 1.4;"></div>
+
+              <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                <button class="btn-primary" id="btn-connect-linkedin" onclick="connectLinkedInAccount()">✓ Connect & Verify LinkedIn</button>
+                <button class="btn-secondary" id="btn-disconnect-linkedin" onclick="disconnectService('LINKEDIN')" style="display: none; color: #F43F5E;">Disconnect</button>
               </div>
             </div>
 
-            <div style="display: flex; gap: 0.6rem; margin-bottom: 1rem;">
-              <button class="btn-primary" onclick="connectLinkedInAccount()">✓ Connect & Verify LinkedIn</button>
-            </div>
-
-            <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; padding: 0.85rem; margin-top: 1.25rem;">
-              <div style="font-size: 0.8rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 0.25rem;">Autonomous Rate-Limit Shield:</div>
-              <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.4;">
-                Protects Jagannath's LinkedIn standing: Max 20 personalized connection notes/week, humanized jitter timing, zero spam boilerplate.
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <div style="font-size: 0.78rem; font-weight: 600; color: var(--accent-gold);">Test LinkedIn Dispatch:</div>
+                <button class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.75rem;" onclick="testLinkedInDispatch()">Send Test InMail</button>
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">
+                Autonomous Rate-Limit Shield: Max 20 personalized notes/week with humanized jitter.
               </div>
             </div>
           </div>

@@ -72,5 +72,44 @@ class TestMultiAgentSystem(unittest.TestCase):
         self.assertIn("action_required", briefing)
         self.assertIn("metrics", briefing)
 
+    def test_outreach_live_dispatch(self):
+        from backend.agents.outreach_agent import outreach_agent
+        from backend.agents.contact_intelligence import contact_intelligence_agent
+        from backend.services.dispatch_service import dispatch_service
+
+        # Enable simulated mode to test dispatch
+        dispatch_service.enable_simulation_mode()
+
+        jobs = job_discovery_agent.get_all_jobs()
+        job = jobs[0]
+        contacts = contact_intelligence_agent.get_contacts_by_job(job["id"])
+        verified_contact = None
+        for c in contacts:
+            if c.get("email") or ("/in/" in (c.get("linkedin_url") or "")):
+                verified_contact = c
+                break
+
+        if not verified_contact:
+            contact = contact_intelligence_agent.add_real_contact(
+                company_name=job["company_name"],
+                full_name="Sarah Al-Mansoor",
+                job_title="Head of Talent Acquisition",
+                role_category="recruiter",
+                linkedin_url="https://www.linkedin.com/in/sarah-almansoor-test"
+            )
+        else:
+            contact = verified_contact
+
+        draft = outreach_agent.generate_outreach_draft(job["id"], contact["id"])
+        self.assertIn("outreach_id", draft)
+
+        dispatch_res = outreach_agent.send_outreach(draft["outreach_id"], autonomy_level=2)
+        self.assertIn(dispatch_res["status"], ["SENT_LIVE_GMAIL", "SENT_LIVE_LINKEDIN", "SENT"])
+
+        # Clean up
+        dispatch_service.disconnect_service("GMAIL")
+        dispatch_service.disconnect_service("LINKEDIN")
+
 if __name__ == "__main__":
     unittest.main()
+

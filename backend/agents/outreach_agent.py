@@ -81,11 +81,17 @@ class OutreachAgent:
 
         outreach_id = f"out_{str(uuid.uuid4())[:8]}"
 
+        clean_job_id = str(job_id).strip() if (job_id and str(job_id).strip()) else None
         with get_db() as conn:
+            if clean_job_id:
+                job_exists = conn.execute("SELECT 1 FROM jobs WHERE id = ?", (clean_job_id,)).fetchone()
+                if not job_exists:
+                    clean_job_id = None
+
             conn.execute("""
                 INSERT OR REPLACE INTO outreach_campaigns (id, job_id, contact_id, company_name, channel, subject, message_body, outreach_type, status)
                 VALUES (?, ?, ?, ?, 'EMAIL', ?, ?, ?, 'DRAFT')
-            """, (outreach_id, job_id, contact_id, company, subject, body, outreach_type))
+            """, (outreach_id, clean_job_id, contact_id, company, subject, body, outreach_type))
 
             conn.execute("""
                 INSERT INTO audit_logs (id, agent_name, action, entity_id, reasoning_summary, evidence, confidence)
@@ -104,7 +110,7 @@ class OutreachAgent:
             "outreach_type": outreach_type
         }
 
-    def send_outreach(self, outreach_id: str, autonomy_level: int = 2) -> Dict[str, Any]:
+    def send_outreach(self, outreach_id: str, autonomy_level: Optional[int] = None) -> Dict[str, Any]:
         """Executes the outreach if permitted by security policy and transmits via live channels."""
         from backend.services.dispatch_service import dispatch_service
 
@@ -115,8 +121,14 @@ class OutreachAgent:
 
             contact = conn.execute("SELECT * FROM contacts WHERE id = ?", (outreach["contact_id"],)).fetchone()
 
-        # Verify permission
-        is_permitted, reason = security_engine.check_permission("SEND_RECRUITER_MESSAGE", autonomy_level)
+            if autonomy_level is None:
+                pref = conn.execute("SELECT value FROM preferences WHERE key = 'autonomy_level'").fetchone()
+                effective_autonomy = int(pref["value"]) if pref else 1
+            else:
+                effective_autonomy = autonomy_level
+
+        # Verify permission (Autonomy Level 1 requires explicit human approval)
+        is_permitted, reason = security_engine.check_permission("SEND_RECRUITER_MESSAGE", effective_autonomy)
         if not is_permitted:
             # Stage in approvals queue
             with get_db() as conn:
@@ -128,10 +140,17 @@ class OutreachAgent:
 
         # Attempt Live Transmission
         dispatch_status = "SENT"
-        recipient_email = contact["email"] if contact else None
+        recipient_email = contact["email"].strip() if (contact and contact["email"] and "@" in contact["email"]) else None
+        # Only direct personal profile URLs (/in/) can receive InMail/messages
+        recipient_linkedin = contact["linkedin_url"].strip() if (contact and contact["linkedin_url"] and "/in/" in contact["linkedin_url"]) else None
         live_result_msg = ""
 
-        if recipient_email:
+        # Check integration status
+        integrations = dispatch_service.get_integration_status()
+        gmail_ready = integrations.get("gmail", {}).get("status") == "CONNECTED"
+        linkedin_ready = integrations.get("linkedin", {}).get("status") == "CONNECTED"
+
+        if recipient_email and gmail_ready:
             sent_live, live_msg = dispatch_service.send_live_email(recipient_email, outreach["subject"], outreach["message_body"])
             if sent_live:
                 dispatch_status = "SENT_LIVE_GMAIL"
@@ -139,9 +158,23 @@ class OutreachAgent:
             else:
                 dispatch_status = "STAGED_AWAITING_ACCOUNT"
                 live_result_msg = f"Staged in queue: {live_msg}"
-        else:
+        elif recipient_linkedin and linkedin_ready:
+            sent_live, live_msg = dispatch_service.send_live_linkedin(recipient_linkedin, outreach["subject"], outreach["message_body"])
+            if sent_live:
+                dispatch_status = "SENT_LIVE_LINKEDIN"
+                live_result_msg = f"Delivered live to LinkedIn profile ({recipient_linkedin})"
+            else:
+                dispatch_status = "STAGED_AWAITING_ACCOUNT"
+                live_result_msg = f"Staged in queue: {live_msg}"
+        elif recipient_email and not gmail_ready:
             dispatch_status = "STAGED_AWAITING_ACCOUNT"
-            live_result_msg = f"Staged in queue: Connect LinkedIn session or verify recipient email."
+            live_result_msg = "Staged in queue: Connect verified Gmail in Accounts & Live Dispatch to send."
+        elif recipient_linkedin and not linkedin_ready:
+            dispatch_status = "STAGED_AWAITING_ACCOUNT"
+            live_result_msg = "Staged in queue: Connect verified LinkedIn session in Accounts & Live Dispatch to send."
+        else:
+            dispatch_status = "STAGED_AWAITING_VERIFIED_CONTACT"
+            live_result_msg = "Outreach pitch prepared and preserved as draft. Awaiting verified direct corporate email or personal LinkedIn profile URL."
 
         # Update database record
         with get_db() as conn:

@@ -75,6 +75,18 @@ class TestEmailRequest(BaseModel):
     subject: Optional[str] = "AI7 Career Agent Test Transmission"
     body: Optional[str] = "This is a verified test email dispatched autonomously by the AI7 Career Agent on behalf of V. Jagannath."
 
+class DisconnectRequest(BaseModel):
+    service_name: str # "GMAIL" or "LINKEDIN"
+
+class LinkedInTestRequest(BaseModel):
+    recipient_url: Optional[str] = "https://www.linkedin.com/in/uae-realestate-leader"
+    subject: Optional[str] = "AI7 Career Agent Test Connection"
+    message: Optional[str] = "Executive introduction from V. Jagannath."
+
+class SimulateRequest(BaseModel):
+    service_name: Optional[str] = None # None means both GMAIL and LINKEDIN
+
+
 # Candidate & Career Brain
 @router.get("/candidate")
 def get_candidate():
@@ -410,3 +422,24 @@ def test_email(req: TestEmailRequest):
     if not success:
         raise HTTPException(status_code=400, detail=msg)
     return {"status": "dispatched", "detail": msg}
+
+@router.post("/integrations/disconnect")
+def disconnect_service(req: DisconnectRequest):
+    from backend.services.dispatch_service import dispatch_service
+    success, msg = dispatch_service.disconnect_service(req.service_name)
+    return {"status": "disconnected", "detail": msg}
+
+@router.post("/integrations/simulate")
+def enable_simulated_mode(req: SimulateRequest):
+    from backend.services.dispatch_service import dispatch_service
+    success, msg = dispatch_service.enable_simulation_mode(req.service_name)
+    return {"status": "simulated", "detail": msg}
+
+@router.post("/integrations/linkedin/test")
+def test_linkedin_dispatch(req: LinkedInTestRequest):
+    from backend.services.dispatch_service import dispatch_service
+    success, msg = dispatch_service.send_live_linkedin(req.recipient_url, req.subject, req.message)
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "dispatched", "detail": msg}
+

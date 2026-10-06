@@ -54,8 +54,10 @@ class JobDiscoveryAgent:
         Ingests a 100% real job posting from LinkedIn, Bayt, GulfTalent, or corporate careers portal.
         """
         with get_db() as conn:
-            # Check or create company
-            comp = conn.execute("SELECT * FROM companies WHERE company_name LIKE ?", (f"%{company_name}%",)).fetchone()
+            # Check or create company (exact match first)
+            comp = conn.execute("SELECT * FROM companies WHERE LOWER(company_name) = LOWER(?)", (company_name.strip(),)).fetchone()
+            if not comp:
+                comp = conn.execute("SELECT * FROM companies WHERE company_name LIKE ?", (f"%{company_name.strip()}%",)).fetchone()
             if comp:
                 comp_id = comp["id"]
                 comp_name = comp["company_name"]

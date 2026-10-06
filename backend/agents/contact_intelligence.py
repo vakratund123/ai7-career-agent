@@ -18,7 +18,9 @@ class ContactIntelligenceAgent:
     def discover_contacts_for_company(self, company_name: str) -> List[Dict[str, Any]]:
         """Retrieves verified professional decision makers for a company."""
         with get_db() as conn:
-            comp = conn.execute("SELECT * FROM companies WHERE company_name LIKE ?", (f"%{company_name}%",)).fetchone()
+            comp = conn.execute("SELECT * FROM companies WHERE LOWER(company_name) = LOWER(?)", (company_name.strip(),)).fetchone()
+            if not comp:
+                comp = conn.execute("SELECT * FROM companies WHERE company_name LIKE ?", (f"%{company_name.strip()}%",)).fetchone()
             if not comp:
                 return []
 
@@ -35,7 +37,9 @@ class ContactIntelligenceAgent:
     def add_real_contact(self, company_name: str, full_name: str, job_title: str, role_category: str = "hiring_manager", email: Optional[str] = None, linkedin_url: Optional[str] = None, notes: Optional[str] = None) -> Dict[str, Any]:
         """Adds a verified 100% real human contact found on LinkedIn or through professional networks."""
         with get_db() as conn:
-            comp = conn.execute("SELECT * FROM companies WHERE company_name LIKE ?", (f"%{company_name}%",)).fetchone()
+            comp = conn.execute("SELECT * FROM companies WHERE LOWER(company_name) = LOWER(?)", (company_name.strip(),)).fetchone()
+            if not comp:
+                comp = conn.execute("SELECT * FROM companies WHERE company_name LIKE ?", (f"%{company_name.strip()}%",)).fetchone()
             if comp:
                 comp_id = comp["id"]
                 comp_name = comp["company_name"]

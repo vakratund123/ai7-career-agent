@@ -69,5 +69,46 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertIn("security_posture", settings)
         self.assertIn("target_companies", settings)
 
+    def test_integrations_flow(self):
+        # 1. Get initial status
+        res = self.client.get("/api/integrations")
+        self.assertEqual(res.status_code, 200)
+        status_data = res.json()
+        self.assertIn("gmail", status_data)
+        self.assertIn("linkedin", status_data)
+
+        # 2. Enable simulated sandbox mode
+        res_sim = self.client.post("/api/integrations/simulate", json={})
+        self.assertEqual(res_sim.status_code, 200)
+        self.assertEqual(res_sim.json()["status"], "simulated")
+
+        # Verify status is now CONNECTED
+        res_after = self.client.get("/api/integrations")
+        data_after = res_after.json()
+        self.assertEqual(data_after["gmail"]["status"], "CONNECTED")
+        self.assertEqual(data_after["linkedin"]["status"], "CONNECTED")
+
+        # 3. Test simulated LinkedIn dispatch
+        res_li = self.client.post("/api/integrations/linkedin/test", json={
+            "recipient_url": "https://www.linkedin.com/in/test-recruiter",
+            "subject": "Test Intro",
+            "message": "Test Message"
+        })
+        self.assertEqual(res_li.status_code, 200)
+        self.assertEqual(res_li.json()["status"], "dispatched")
+
+        # 4. Disconnect GMAIL and LINKEDIN
+        res_dc_g = self.client.post("/api/integrations/disconnect", json={"service_name": "GMAIL"})
+        self.assertEqual(res_dc_g.status_code, 200)
+        res_dc_li = self.client.post("/api/integrations/disconnect", json={"service_name": "LINKEDIN"})
+        self.assertEqual(res_dc_li.status_code, 200)
+
+        # Verify back to DISCONNECTED
+        res_final = self.client.get("/api/integrations")
+        data_final = res_final.json()
+        self.assertEqual(data_final["gmail"]["status"], "DISCONNECTED")
+        self.assertEqual(data_final["linkedin"]["status"], "DISCONNECTED")
+
 if __name__ == "__main__":
     unittest.main()
+

@@ -496,10 +496,11 @@ function renderContactsGrid(contacts) {
 
     let linkedinHtml = '';
     if (c.linkedin_url) {
+      const btnLabel = c.linkedin_url.includes('/company/') ? '🏢 Company LinkedIn ↗' : (c.linkedin_url.includes('/in/') ? '👤 Open LinkedIn Profile ↗' : '🔍 Find on LinkedIn ↗');
       linkedinHtml = `
         <a href="${escapeHtml(c.linkedin_url)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 6px; background: rgba(10, 102, 194, 0.15); border: 1px solid rgba(10, 102, 194, 0.35); color: #0A66C2; font-size: 0.78rem; font-weight: 600; text-decoration: none;">
           <svg style="width: 13px; height: 13px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-          Open LinkedIn Profile ↗
+          ${btnLabel}
         </a>
       `;
     }
@@ -825,7 +826,7 @@ async function openMatchInspector(jobId) {
                 <div style="display: flex; gap: 0.35rem; align-items: center;">
                   ${c.email ? `<button class="btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem;" onclick="copyToClipboard('${escapeHtml(c.email)}', this)">📋 Copy Email</button>` : ''}
                   ${c.email ? `<a href="mailto:${escapeHtml(c.email)}" class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; text-decoration: none;">✉️ Email</a>` : ''}
-                  ${c.linkedin_url ? `<a href="${escapeHtml(c.linkedin_url)}" target="_blank" class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; text-decoration: none; background: rgba(10,102,194,0.3); border-color: #0A66C2;">LinkedIn ↗</a>` : ''}
+                  ${c.linkedin_url ? `<a href="${escapeHtml(c.linkedin_url)}" target="_blank" class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; text-decoration: none; background: rgba(10,102,194,0.3); border-color: #0A66C2;">${c.linkedin_url.includes('/company/') ? '🏢 Company ↗' : (c.linkedin_url.includes('/in/') ? '👤 Profile ↗' : '🔍 Search ↗')}</a>` : ''}
                 </div>
               </div>
             `).join('')}
@@ -959,46 +960,82 @@ function escapeHtml(str) {
 }
 
 // 11. Live Integrations Management
+async function requestApiJson(url, options = {}) {
+  const res = await fetch(url, options);
+  const text = await res.text();
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (parseErr) {
+    if (text.includes("no tunnel") || res.status === 502 || res.status === 504) {
+      throw new Error("Live tunnel is temporarily reconnecting. Please wait 10 seconds and retry, or use the direct host address.");
+    }
+    throw new Error(text.slice(0, 150) || `Server error (${res.status})`);
+  }
+  if (!res.ok) {
+    const errorDetail = (data && (data.detail || data.message)) || `Request failed (${res.status})`;
+    throw new Error(errorDetail);
+  }
+  return data;
+}
+
 async function loadIntegrationsStatus() {
   try {
-    const res = await fetch(`${API_BASE}/integrations`);
-    const data = await res.json();
+    const data = await requestApiJson(`${API_BASE}/integrations`);
 
     const gmailConnected = data.gmail && data.gmail.status === 'CONNECTED';
     const linkedinConnected = data.linkedin && data.linkedin.status === 'CONNECTED';
+    const isSimulated = (data.gmail && data.gmail.is_simulated) || (data.linkedin && data.linkedin.is_simulated);
 
     const statusBadge = document.getElementById('badge-integrations-status');
     const gmailPill = document.getElementById('gmail-status-pill');
     const linkedinPill = document.getElementById('linkedin-status-pill');
     const liveDispatchPill = document.getElementById('live-dispatch-pill');
+    const btnSimToggle = document.getElementById('btn-sim-toggle');
 
+    const btnDisconnectGmail = document.getElementById('btn-disconnect-gmail');
+    const btnDisconnectLinkedIn = document.getElementById('btn-disconnect-linkedin');
+    const btnConnectGmail = document.getElementById('btn-connect-gmail');
+    const btnConnectLinkedIn = document.getElementById('btn-connect-linkedin');
+
+    // Gmail Card Status
     if (gmailPill) {
       if (gmailConnected) {
-        gmailPill.textContent = 'CONNECTED';
+        gmailPill.textContent = data.gmail.is_simulated ? 'CONNECTED (SANDBOX)' : 'CONNECTED';
         gmailPill.style.background = 'rgba(16, 185, 129, 0.15)';
         gmailPill.style.color = 'var(--accent-emerald)';
+        if (btnDisconnectGmail) btnDisconnectGmail.style.display = 'inline-block';
+        if (btnConnectGmail) btnConnectGmail.textContent = '✓ Re-verify / Update';
       } else {
         gmailPill.textContent = 'DISCONNECTED';
         gmailPill.style.background = 'rgba(244, 63, 94, 0.15)';
         gmailPill.style.color = '#F43F5E';
+        if (btnDisconnectGmail) btnDisconnectGmail.style.display = 'none';
+        if (btnConnectGmail) btnConnectGmail.textContent = '✓ Connect & Verify Gmail';
       }
     }
 
+    // LinkedIn Card Status
     if (linkedinPill) {
       if (linkedinConnected) {
-        linkedinPill.textContent = 'CONNECTED';
+        linkedinPill.textContent = data.linkedin.is_simulated ? 'CONNECTED (SANDBOX)' : 'CONNECTED';
         linkedinPill.style.background = 'rgba(16, 185, 129, 0.15)';
         linkedinPill.style.color = 'var(--accent-emerald)';
+        if (btnDisconnectLinkedIn) btnDisconnectLinkedIn.style.display = 'inline-block';
+        if (btnConnectLinkedIn) btnConnectLinkedIn.textContent = '✓ Re-verify / Update';
       } else {
         linkedinPill.textContent = 'DISCONNECTED';
         linkedinPill.style.background = 'rgba(244, 63, 94, 0.15)';
         linkedinPill.style.color = '#F43F5E';
+        if (btnDisconnectLinkedIn) btnDisconnectLinkedIn.style.display = 'none';
+        if (btnConnectLinkedIn) btnConnectLinkedIn.textContent = '✓ Connect & Verify LinkedIn';
       }
     }
 
+    // Top Navigation Badge
     if (statusBadge) {
       if (gmailConnected || linkedinConnected) {
-        statusBadge.textContent = 'ONLINE';
+        statusBadge.textContent = isSimulated ? 'SANDBOX ACTIVE' : 'ONLINE';
         statusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
         statusBadge.style.color = 'var(--accent-emerald)';
       } else {
@@ -1008,18 +1045,28 @@ async function loadIntegrationsStatus() {
       }
     }
 
+    // Live Dispatch Banner Pill
     if (liveDispatchPill) {
-      if (gmailConnected || linkedinConnected) {
+      if (isSimulated) {
+        liveDispatchPill.innerHTML = '⚡ Sandbox Simulated Dispatch Active';
+        liveDispatchPill.style.background = 'rgba(212, 175, 55, 0.15)';
+        liveDispatchPill.style.color = 'var(--accent-gold)';
+        liveDispatchPill.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+      } else if (gmailConnected || linkedinConnected) {
         liveDispatchPill.innerHTML = '🟢 Autonomous Live Dispatch Active';
         liveDispatchPill.style.background = 'rgba(16, 185, 129, 0.15)';
         liveDispatchPill.style.color = 'var(--accent-emerald)';
         liveDispatchPill.style.borderColor = 'rgba(16, 185, 129, 0.3)';
       } else {
-        liveDispatchPill.innerHTML = '⚠️ Staging Mode (Connect Gmail / LinkedIn to Dispatch Live)';
+        liveDispatchPill.innerHTML = '⚠️ Staging Mode (Credentials Pending)';
         liveDispatchPill.style.background = 'rgba(244, 63, 94, 0.15)';
         liveDispatchPill.style.color = '#F43F5E';
         liveDispatchPill.style.borderColor = 'rgba(244, 63, 94, 0.3)';
       }
+    }
+
+    if (btnSimToggle) {
+      btnSimToggle.textContent = isSimulated ? 'Disable Sandbox Mode' : '⚡ Enable Sandbox / Simulation Mode';
     }
   } catch (err) {
     console.error('Failed to load integrations status:', err);
@@ -1029,69 +1076,206 @@ async function loadIntegrationsStatus() {
 async function connectGmailAccount() {
   const email = document.getElementById('input-gmail-addr').value.trim();
   const pwd = document.getElementById('input-gmail-pwd').value.trim();
+  const statusMsg = document.getElementById('gmail-status-msg');
+  const btn = document.getElementById('btn-connect-gmail');
 
   if (!email || !pwd) {
-    alert('Please enter your candidate email address and 16-character Google App Password.');
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+      statusMsg.style.color = '#F43F5E';
+      statusMsg.innerHTML = '<b>Required:</b> Please enter candidate email and 16-character Google App Password.';
+    } else {
+      alert('Please enter your candidate email address and 16-character Google App Password.');
+    }
     return;
   }
 
+  btn.disabled = true;
+  btn.textContent = 'Testing & Connecting (SSL:465 / STARTTLS:587)...';
+
   try {
-    const res = await fetch(`${API_BASE}/integrations/gmail`, {
+    const data = await requestApiJson(`${API_BASE}/integrations/gmail`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, app_password: pwd, live_dispatch: true })
     });
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.detail || 'Connection failed');
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+      statusMsg.style.color = 'var(--accent-emerald)';
+      statusMsg.innerHTML = `✓ <b>Success:</b> ${data.message}`;
     }
 
-    alert('Success: ' + data.message);
     await loadIntegrationsStatus();
     await refreshTelemetry();
   } catch (err) {
-    alert('Gmail Connection Error: ' + err.message);
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+      statusMsg.style.color = '#F43F5E';
+      statusMsg.innerHTML = `<b>Connection Error:</b> ${err.message}`;
+    } else {
+      alert('Gmail Connection Error: ' + err.message);
+    }
+  } finally {
+    btn.disabled = false;
   }
 }
 
 async function connectLinkedInAccount() {
   const url = document.getElementById('input-linkedin-url').value.trim();
   const cookie = document.getElementById('input-linkedin-cookie').value.trim();
+  const statusMsg = document.getElementById('linkedin-status-msg');
+  const btn = document.getElementById('btn-connect-linkedin');
 
   if (!url || !cookie) {
-    alert('Please enter your LinkedIn profile URL and session cookie (li_at).');
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+      statusMsg.style.color = '#F43F5E';
+      statusMsg.innerHTML = '<b>Required:</b> Please enter LinkedIn profile URL and session cookie (<code>li_at</code>).';
+    } else {
+      alert('Please enter your LinkedIn profile URL and session cookie (li_at).');
+    }
     return;
   }
 
+  btn.disabled = true;
+  btn.textContent = 'Verifying Session Cookie...';
+
   try {
-    const res = await fetch(`${API_BASE}/integrations/linkedin`, {
+    const data = await requestApiJson(`${API_BASE}/integrations/linkedin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ profile_url: url, session_cookie: cookie, live_dispatch: true })
     });
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.detail || 'Connection failed');
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+      statusMsg.style.color = 'var(--accent-emerald)';
+      statusMsg.innerHTML = `✓ <b>Success:</b> ${data.message}`;
     }
 
-    alert('Success: ' + data.message);
     await loadIntegrationsStatus();
     await refreshTelemetry();
   } catch (err) {
-    alert('LinkedIn Connection Error: ' + err.message);
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+      statusMsg.style.color = '#F43F5E';
+      statusMsg.innerHTML = `<b>LinkedIn Error:</b> ${err.message}`;
+    } else {
+      alert('LinkedIn Connection Error: ' + err.message);
+    }
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function disconnectService(serviceName) {
+  if (!confirm(`Are you sure you want to disconnect ${serviceName}? Live autonomous outreach for this channel will pause.`)) {
+    return;
+  }
+
+  try {
+    await requestApiJson(`${API_BASE}/integrations/disconnect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ service_name: serviceName })
+    });
+    
+    // Clear status messages
+    const targetStatusMsg = document.getElementById(`${serviceName.toLowerCase()}-status-msg`);
+    if (targetStatusMsg) targetStatusMsg.style.display = 'none';
+
+    await loadIntegrationsStatus();
+    await refreshTelemetry();
+  } catch (err) {
+    alert(`Failed to disconnect ${serviceName}: ` + err.message);
+  }
+}
+
+async function toggleSimulatedMode() {
+  const gMsg = document.getElementById('integrations-global-msg');
+  try {
+    const statusData = await requestApiJson(`${API_BASE}/integrations`);
+    const isSimulated = (statusData.gmail && statusData.gmail.is_simulated) || (statusData.linkedin && statusData.linkedin.is_simulated);
+
+    if (isSimulated) {
+      // Disconnect both
+      await requestApiJson(`${API_BASE}/integrations/disconnect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service_name: 'GMAIL' })
+      });
+      await requestApiJson(`${API_BASE}/integrations/disconnect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service_name: 'LINKEDIN' })
+      });
+
+      if (gMsg) {
+        gMsg.style.display = 'block';
+        gMsg.style.background = 'rgba(59, 130, 246, 0.15)';
+        gMsg.style.color = 'var(--accent-blue)';
+        gMsg.innerHTML = 'ℹ️ Sandbox mode deactivated. Connect verified credentials when ready for live outreach.';
+      }
+    } else {
+      await requestApiJson(`${API_BASE}/integrations/simulate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+
+      if (gMsg) {
+        gMsg.style.display = 'block';
+        gMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+        gMsg.style.color = 'var(--accent-emerald)';
+        gMsg.innerHTML = `✓ <b>Sandbox Live Mode Active:</b> Autonomous scouting and outreach testing enabled with safe simulated delivery.`;
+      }
+    }
+
+    await loadIntegrationsStatus();
+    await refreshTelemetry();
+  } catch (err) {
+    alert('Error toggling sandbox mode: ' + err.message);
   }
 }
 
 async function syncLiveInbox() {
+  const statusMsg = document.getElementById('gmail-status-msg');
   try {
-    const res = await fetch(`${API_BASE}/integrations/sync-inbox`, { method: 'POST' });
-    const data = await res.json();
+    const data = await requestApiJson(`${API_BASE}/integrations/sync-inbox`, { method: 'POST' });
     if (data.status === 'DISCONNECTED') {
-      alert(data.message);
+      if (statusMsg) {
+        statusMsg.style.display = 'block';
+        statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+        statusMsg.style.color = '#F43F5E';
+        statusMsg.innerHTML = `⚠️ ${data.message}`;
+      } else {
+        alert(data.message);
+      }
+    } else if (data.status === 'ERROR') {
+      if (statusMsg) {
+        statusMsg.style.display = 'block';
+        statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+        statusMsg.style.color = '#F43F5E';
+        statusMsg.innerHTML = `<b>IMAP Error:</b> ${data.message}`;
+      } else {
+        alert('IMAP Sync Error: ' + data.message);
+      }
     } else {
-      alert(`Inbox sync complete! Processed ${data.emails_processed} new incoming messages.`);
+      if (statusMsg) {
+        statusMsg.style.display = 'block';
+        statusMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+        statusMsg.style.color = 'var(--accent-emerald)';
+        statusMsg.innerHTML = `✓ <b>Inbox Synced:</b> Processed ${data.emails_processed} new incoming message(s).`;
+      } else {
+        alert(`Inbox sync complete! Processed ${data.emails_processed} new incoming messages.`);
+      }
       await refreshTelemetry();
     }
   } catch (err) {
@@ -1101,26 +1285,70 @@ async function syncLiveInbox() {
 
 async function sendTestEmail() {
   const recipient = document.getElementById('input-test-recipient').value.trim();
+  const statusMsg = document.getElementById('gmail-status-msg');
+
   if (!recipient) {
     alert('Please enter a recipient email address to send a test transmission.');
     return;
   }
 
   try {
-    const res = await fetch(`${API_BASE}/integrations/test-email`, {
+    const data = await requestApiJson(`${API_BASE}/integrations/test-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ recipient })
     });
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.detail || 'Failed to dispatch test email');
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+      statusMsg.style.color = 'var(--accent-emerald)';
+      statusMsg.innerHTML = `✓ <b>Test Sent:</b> ${data.detail}`;
+    } else {
+      alert('Test Email Dispatched Successfully!\n' + data.detail);
     }
-
-    alert('Test Email Dispatched Successfully!\n' + data.detail);
   } catch (err) {
-    alert('Test Email Error: ' + err.message);
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+      statusMsg.style.color = '#F43F5E';
+      statusMsg.innerHTML = `<b>Test Failed:</b> ${err.message}`;
+    } else {
+      alert('Test Email Error: ' + err.message);
+    }
+  }
+}
+
+async function testLinkedInDispatch() {
+  const statusMsg = document.getElementById('linkedin-status-msg');
+  try {
+    const data = await requestApiJson(`${API_BASE}/integrations/linkedin/test`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        recipient_url: 'https://www.linkedin.com/in/dubai-asset-manager',
+        subject: 'Executive InMail Introduction — V. Jagannath',
+        message: 'Dear Colleague, Brief introduction regarding commercial asset management leadership in Dubai.'
+      })
+    });
+
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(16, 185, 129, 0.15)';
+      statusMsg.style.color = 'var(--accent-emerald)';
+      statusMsg.innerHTML = `✓ <b>LinkedIn Test:</b> ${data.detail}`;
+    } else {
+      alert('LinkedIn Test Dispatched:\n' + data.detail);
+    }
+  } catch (err) {
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.background = 'rgba(244, 63, 94, 0.15)';
+      statusMsg.style.color = '#F43F5E';
+      statusMsg.innerHTML = `<b>LinkedIn Test Error:</b> ${err.message}`;
+    } else {
+      alert('LinkedIn Test Error: ' + err.message);
+    }
   }
 }
 

@@ -451,3 +451,230 @@ def test_linkedin_dispatch(req: LinkedInTestRequest):
         raise HTTPException(status_code=400, detail=msg)
     return {"status": "dispatched", "detail": msg}
 
+# ==========================================
+# SIMPLIFIED DIRECT INTERFACE API ENDPOINTS
+# ==========================================
+
+class SimpleSendEmailRequest(BaseModel):
+    contact_id: Optional[str] = None
+    outreach_id: Optional[str] = None
+    recipient_email: str
+    subject: str
+    message_body: str
+
+class SimpleBatchSendRequest(BaseModel):
+    contact_ids: list[str]
+
+class SimpleSaveEmailSettingsRequest(BaseModel):
+    email: str
+    app_password: Optional[str] = ""
+    is_simulated: Optional[bool] = False
+    force_save: Optional[bool] = False
+
+class SimpleMarkSentRequest(BaseModel):
+    contact_id: str
+    channel: Optional[str] = "EMAIL"
+
+@router.get("/simple/catalog")
+def get_simple_catalog():
+    from backend.services.dispatch_service import dispatch_service
+    status = dispatch_service.get_integration_status()
+    with get_db() as conn:
+        jobs = [dict(r) for r in conn.execute("""
+            SELECT j.*, m.overall_fit_label, m.match_score
+            FROM jobs j
+            LEFT JOIN job_matches m ON j.id = m.job_id
+            ORDER BY j.company_name ASC
+        """).fetchall()]
+
+        from backend.agents.company_profiles import get_company_profile, generate_tailored_email, generate_tailored_linkedin
+
+        contacts = [dict(r) for r in conn.execute("""
+            SELECT c.*, o.id as outreach_id, o.subject as outreach_subject, 
+                   o.message_body as outreach_message_body, o.linkedin_note as outreach_linkedin_note,
+                   o.status as outreach_status, o.sent_at as outreach_sent_at
+            FROM contacts c
+            LEFT JOIN outreach_campaigns o ON c.id = o.contact_id
+            ORDER BY c.company_name ASC, c.full_name ASC
+        """).fetchall()]
+
+        def get_sector(company_name: str) -> str:
+            sovereign_pe = {'Blackstone', 'BlackRock', 'Goldman Sachs', 'Morgan Stanley', 'J.P. Morgan Asset Management', 'Brookfield Asset Management', 'Invesco', 'Vanguard', 'Fidelity', 'KKR', 'Apollo Global Management', 'The Carlyle Group', 'BentallGreenOak', 'CrowdStreet', 'Fundrise'}
+            sovereign = {'Investment Corporation of Dubai', 'Mubadala Investment Company', 'Dubai World Trade Centre'}
+            prime_dev = {'Emaar Properties', 'Aldar Properties', 'Dubai Holding / Meraas', 'Majid Al Futtaim', 'Wasl Asset Management Group', 'Nakheel', 'DAMAC Properties', 'Sobha Realty'}
+            tech_retail = {'Amazon', 'Google', 'Microsoft', 'Visa', 'Mastercard', 'Etihad Airways', 'GMG', 'Chalhoub Group', 'Landmark Group', 'Al-Futtaim Group', 'IWG plc', 'GitLab', 'Digital Realty', 'Equinix'}
+            agencies = {'Savills Middle East', 'Knight Frank Middle East', 'Cushman & Wakefield Core', 'JLL Middle East', 'CBRE Middle East', 'Colliers Middle East', 'Michael Page Middle East', 'Charterhouse Middle East', 'Hays Middle East', 'Cooper Fitch', 'McKinsey & Company', 'PwC', 'Deloitte', 'KPMG', 'EY'}
+            
+            if company_name in sovereign_pe:
+                return "Investment Banking & PE"
+            elif company_name in sovereign:
+                return "Sovereign Wealth"
+            elif company_name in prime_dev:
+                return "Prime Developers"
+            elif company_name in tech_retail:
+                return "Global Tech & Retail"
+            elif company_name in agencies:
+                return "Consultancies & Agencies"
+            return "Commercial Real Estate"
+
+        contacts_by_comp = {}
+        for c in contacts:
+            c["sector"] = get_sector(c["company_name"])
+            c["company_profile"] = get_company_profile(c["company_name"])
+            
+            # Ensure email pitch and LinkedIn note are always populated
+            if not c.get("outreach_message_body"):
+                email_pack = generate_tailored_email(c)
+                c["outreach_subject"] = email_pack["subject"]
+                c["outreach_message_body"] = email_pack["body"]
+            if not c.get("outreach_linkedin_note"):
+                c["outreach_linkedin_note"] = generate_tailored_linkedin(c)
+
+            comp = c["company_name"]
+            if comp not in contacts_by_comp:
+                contacts_by_comp[comp] = []
+            contacts_by_comp[comp].append(c)
+
+        for j in jobs:
+            j["sector"] = get_sector(j["company_name"])
+            j["contacts"] = contacts_by_comp.get(j["company_name"], [])
+
+        sent_count = sum(1 for c in contacts if c.get("outreach_status") in ("SENT", "SENT_LIVE_GMAIL", "SENT_SIMULATED", "SENT_MANUAL"))
+
+        return {
+            "candidate": {
+                "name": "Vanganur Jagannath",
+                "title": "Senior Asset Manager & Leasing Director",
+                "experience": "15+ Years UAE Real Estate & Asset Management",
+                "portfolio": "AED 800M+ Portfolio | 2,500+ Leases Negotiated",
+                "notable_projects": "One Za'abeel, Deira Enrichment Project (Ithra Dubai LLC / ICD)",
+                "email": "v.jagannath3@gmail.com",
+                "phone": "+971 50 5099065",
+                "location": "Dubai, United Arab Emirates",
+                "linkedin": "https://www.linkedin.com/in/v-jagannath-re"
+            },
+            "jobs": jobs,
+            "contacts": contacts,
+            "email_settings": status.get("gmail", {}),
+            "stats": {
+                "total_jobs": len(jobs),
+                "total_contacts": len(contacts),
+                "total_emails": sum(1 for c in contacts if c.get("email")),
+                "total_linkedin": sum(1 for c in contacts if c.get("linkedin_url")),
+                "sent_count": sent_count
+            }
+        }
+
+@router.post("/simple/send-email")
+def simple_send_email(req: SimpleSendEmailRequest):
+    import urllib.parse
+    from backend.services.dispatch_service import dispatch_service
+    status = dispatch_service.get_integration_status()
+    gmail_info = status.get("gmail", {})
+
+    sent, detail = dispatch_service.send_live_email(req.recipient_email, req.subject, req.message_body)
+
+    if sent:
+        import uuid
+        with get_db() as conn:
+            dispatch_status = "SENT_SIMULATED" if gmail_info.get("is_simulated") else "SENT_LIVE_GMAIL"
+            # Update existing or create new outreach campaign entry
+            target_id = req.outreach_id
+            if not target_id and req.contact_id:
+                row = conn.execute("SELECT id FROM outreach_campaigns WHERE contact_id = ?", (req.contact_id,)).fetchone()
+                if row:
+                    target_id = row["id"]
+            
+            if target_id:
+                conn.execute("""
+                    UPDATE outreach_campaigns 
+                    SET status = ?, sent_at = CURRENT_TIMESTAMP, message_body = ?, subject = ?
+                    WHERE id = ?
+                """, (dispatch_status, req.message_body, req.subject, target_id))
+            elif req.contact_id:
+                conn.execute("""
+                    INSERT INTO outreach_campaigns (id, candidate_id, contact_id, status, channel, subject, message_body, sent_at)
+                    VALUES (?, 'jagannath_v', ?, ?, 'EMAIL', ?, ?, CURRENT_TIMESTAMP)
+                """, (f"outreach_{str(uuid.uuid4())[:8]}", req.contact_id, dispatch_status, req.subject, req.message_body))
+
+        return {"success": True, "mode": "SMTP", "message": detail}
+    else:
+        gmail_url = f"https://mail.google.com/mail/?view=cm&fs=1&to={urllib.parse.quote(req.recipient_email)}&su={urllib.parse.quote(req.subject)}&body={urllib.parse.quote(req.message_body)}"
+        return {
+            "success": False,
+            "need_setup": ("APP_PASSWORD" in detail or "NOT_CONNECTED" in detail),
+            "gmail_url": gmail_url,
+            "message": detail
+        }
+
+@router.post("/simple/batch-send")
+def simple_batch_send(req: SimpleBatchSendRequest):
+    from backend.services.dispatch_service import dispatch_service
+    results = []
+    sent_count = 0
+    with get_db() as conn:
+        for cid in req.contact_ids:
+            row = conn.execute("""
+                SELECT c.*, o.id as outreach_id, o.subject, o.message_body 
+                FROM contacts c
+                LEFT JOIN outreach_campaigns o ON c.id = o.contact_id
+                WHERE c.id = ?
+            """, (cid,)).fetchone()
+            if not row or not row["email"]:
+                continue
+            email = row["email"].strip()
+            subject = row["subject"] or f"Senior Asset Manager & Leasing Leadership Profile — V. Jagannath"
+            body = row["message_body"] or "Dear Leader,\n\nI am writing to introduce my profile..."
+            
+            sent, detail = dispatch_service.send_live_email(email, subject, body)
+            if sent:
+                sent_count += 1
+                dispatch_status = "SENT_LIVE_GMAIL" if not dispatch_service.get_integration_status().get("gmail", {}).get("is_simulated") else "SENT_SIMULATED"
+                existing = conn.execute("SELECT id FROM outreach_campaigns WHERE contact_id = ?", (cid,)).fetchone()
+                if existing:
+                    conn.execute("""
+                        UPDATE outreach_campaigns 
+                        SET status = ?, sent_at = CURRENT_TIMESTAMP, message_body = ?, subject = ?
+                        WHERE id = ?
+                    """, (dispatch_status, body, subject, existing["id"]))
+                else:
+                    import uuid
+                    conn.execute("""
+                        INSERT INTO outreach_campaigns (id, candidate_id, contact_id, status, channel, subject, message_body, sent_at)
+                        VALUES (?, 'jagannath_v', ?, ?, 'EMAIL', ?, ?, CURRENT_TIMESTAMP)
+                    """, (f"outreach_{str(uuid.uuid4())[:8]}", cid, dispatch_status, subject, body))
+                results.append({"contact_id": cid, "recipient": email, "status": "SENT", "detail": detail})
+            else:
+                results.append({"contact_id": cid, "recipient": email, "status": "FAILED", "detail": detail})
+                
+    return {"total": len(req.contact_ids), "sent_count": sent_count, "results": results}
+
+@router.post("/simple/mark-sent")
+def simple_mark_sent(req: SimpleMarkSentRequest):
+    import uuid
+    with get_db() as conn:
+        existing = conn.execute("SELECT id FROM outreach_campaigns WHERE contact_id = ?", (req.contact_id,)).fetchone()
+        if existing:
+            conn.execute("""
+                UPDATE outreach_campaigns 
+                SET status = 'SENT_MANUAL', sent_at = CURRENT_TIMESTAMP 
+                WHERE id = ?
+            """, (existing["id"],))
+        else:
+            conn.execute("""
+                INSERT INTO outreach_campaigns (id, candidate_id, contact_id, status, channel, sent_at)
+                VALUES (?, 'jagannath_v', ?, 'SENT_MANUAL', 'EMAIL', CURRENT_TIMESTAMP)
+            """, (f"outreach_{str(uuid.uuid4())[:8]}", req.contact_id))
+    return {"success": True, "message": "Marked as sent"}
+
+@router.post("/simple/save-email-settings")
+def simple_save_email_settings(req: SimpleSaveEmailSettingsRequest):
+    from backend.services.dispatch_service import dispatch_service
+    if req.is_simulated:
+        success, msg = dispatch_service.enable_simulation_mode("GMAIL")
+        return {"success": success, "message": msg}
+    else:
+        success, msg = dispatch_service.connect_gmail(req.email, req.app_password, live_dispatch=True, force_save=bool(req.force_save))
+        return {"success": success, "message": msg}
+
+

@@ -72,9 +72,19 @@ def main():
                 print("[*] Restarting backend server...")
                 backend_proc = ensure_backend(8001)
 
-            if use_cloudflared:
-                print(f"[*] Connecting high-speed Cloudflare HTTPS tunnel (attempt #{reconnect_count + 1})...")
-                tunnel_cmd = [str(cloudflared_bin), "tunnel", "--url", "http://127.0.0.1:8001"]
+            # Primary: localhost.run (direct TLS termination, zero warning screens)
+            # Fallback: serveo.net
+            if reconnect_count % 2 == 0:
+                server = "nokey@localhost.run"
+                print(f"[*] Connecting secure public HTTPS tunnel via localhost.run (attempt #{reconnect_count + 1})...")
+                tunnel_cmd = [
+                    "ssh",
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "ServerAliveInterval=15",
+                    "-o", "ServerAliveCountMax=4",
+                    "-R", "80:127.0.0.1:8001",
+                    server
+                ]
             else:
                 server = "serveo.net"
                 print(f"[*] Connecting secure public HTTPS tunnel via {server} (attempt #{reconnect_count + 1})...")

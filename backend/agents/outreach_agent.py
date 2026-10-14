@@ -37,47 +37,12 @@ class OutreachAgent:
         if not is_safe:
             return {"error": f"Outreach blocked by anti-spam safety: {safety_reason}"}
 
-        # Select copy based on recipient type
-        first_name = contact_name.split()[0] if contact_name else "Colleague"
-
-        if outreach_type == "RECRUITER_INTRO" or contact["role_category"] == "recruiter":
-            subject = f"V. Jagannath — Application for {job_title} ({company})"
-            body = (
-                f"Dear {first_name},\n\n"
-                f"I noticed {company}'s current search for a {job_title} in Dubai and wanted to briefly introduce my background.\n\n"
-                f"Most recently as Leasing Lead at Ithra Dubai (Investment Corporation of Dubai), I oversaw commercial and retail asset management across 800,000 sq. ft. of flagship space—including One Za'abeel and the Deira Enrichment Project—within an AED 800M portfolio mandate.\n\n"
-                f"Over 20 years in the UAE, I have negotiated 2,500+ commercial leases and evaluated 300+ locations across demographic catchment and feasibility models.\n\n"
-                f"I have submitted a formal application and would be glad to share any additional details that would assist your review.\n\n"
-                f"Best regards,\n"
-                f"V. Jagannath\n"
-                f"+971 50 5099065 | v.jagannath3@gmail.com"
-            )
-        elif outreach_type == "EXECUTIVE_NOTE" or contact["role_category"] == "department_leader":
-            subject = f"{company} UAE Real Estate & Asset Portfolio — V. Jagannath"
-            body = (
-                f"Dear {first_name},\n\n"
-                f"I follow {company}'s strategic footprint across the GCC real estate sector with keen interest.\n\n"
-                f"Having led retail and commercial asset management across 800,000 sq. ft. of ICD-backed developments in Dubai (including One Za'abeel) and managed a diversified AED 800M portfolio, I bring 20+ years of hands-on UAE commercial leasing, CAPEX planning, and RERA governance expertise.\n\n"
-                f"As {company} continues to optimize its regional property and commercial portfolio, I would welcome the opportunity to connect for a brief introductory conversation.\n\n"
-                f"Sincerely,\n"
-                f"V. Jagannath\n"
-                f"Senior Manager – Asset Management & Portfolio Development"
-            )
-        else: # Default: HIRING_MGR_PITCH
-            subject = f"{job_title} candidate profile — V. Jagannath (AED 800M Portfolio / 2,500+ Leases)"
-            body = (
-                f"Dear {first_name},\n\n"
-                f"I am writing regarding the {job_title} mandate at {company}.\n\n"
-                f"My 20-year career in the UAE has focused on maximizing asset yield, tenant acquisition, and capital discipline. Most recently with Ithra Dubai / ICD, I directed leasing and commercial asset strategy across 800,000 sq. ft. of luxury retail and B2B commercial space across One Za'abeel and Deira Enrichment, negotiating with regional developers, corporate occupiers, and institutional stakeholders.\n\n"
-                f"Key documented metrics from my career include:\n"
-                f"• AED 800M Real Estate Portfolio scope managed across residential, commercial, and mixed-use assets\n"
-                f"• 2,500+ commercial lease negotiations completed\n"
-                f"• 300+ locations evaluated through demographic footfall and financial feasibility\n\n"
-                f"I would welcome the opportunity to discuss how this experience aligns with {company}'s commercial objectives in Dubai.\n\n"
-                f"Best regards,\n"
-                f"V. Jagannath\n"
-                f"+971 50 5099065 | v.jagannath3@gmail.com"
-            )
+        # Generate bespoke email and LinkedIn outreach grounded in target company profile
+        from backend.agents.company_profiles import generate_tailored_email, generate_tailored_linkedin
+        email_data = generate_tailored_email(dict(contact), dict(job) if job else None)
+        subject = email_data["subject"]
+        body = email_data["body"]
+        linkedin_note = generate_tailored_linkedin(dict(contact), dict(job) if job else None)
 
         outreach_id = f"out_{str(uuid.uuid4())[:8]}"
 
@@ -89,9 +54,9 @@ class OutreachAgent:
                     clean_job_id = None
 
             conn.execute("""
-                INSERT OR REPLACE INTO outreach_campaigns (id, job_id, contact_id, company_name, channel, subject, message_body, outreach_type, status)
-                VALUES (?, ?, ?, ?, 'EMAIL', ?, ?, ?, 'DRAFT')
-            """, (outreach_id, clean_job_id, contact_id, company, subject, body, outreach_type))
+                INSERT OR REPLACE INTO outreach_campaigns (id, job_id, contact_id, company_name, channel, subject, message_body, linkedin_note, outreach_type, status)
+                VALUES (?, ?, ?, ?, 'EMAIL', ?, ?, ?, ?, 'DRAFT')
+            """, (outreach_id, clean_job_id, contact_id, company, subject, body, linkedin_note, outreach_type))
 
             conn.execute("""
                 INSERT INTO audit_logs (id, agent_name, action, entity_id, reasoning_summary, evidence, confidence)

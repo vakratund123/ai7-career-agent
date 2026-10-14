@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI7 Career Agent — Autonomous Career Operating System</title>
-  <meta name="description" content="Production-grade autonomous AI career acquisition platform for executive real estate and asset management.">
-  <link rel="stylesheet" href="css/style.css">
+  <title>Vanganur Jagannath — Real Estate & Asset Management Executive Hub</title>
+  <meta name="description" content="Verified UAE Real Estate Openings, Executive Decision-Makers, and Automated Outreach System for V. Jagannath.">
+  <link rel="stylesheet" href="css/style.css?v=7.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
@@ -15,665 +15,418 @@
     <div class="brand-section">
       <div class="brand-badge">AI7</div>
       <div class="brand-info">
-        <h1>
-          Career Agent
-          <span class="status-pill"><span class="pulse-dot"></span> 16 Agents Operating</span>
-        </h1>
+        <h1>Jagannath Executive Hub</h1>
       </div>
       <div class="candidate-pill">
         <div class="candidate-avatar">VJ</div>
         <div class="candidate-meta">
-          <div class="name" id="hdr-candidate-name">V. Jagannath</div>
-          <div class="role" id="hdr-candidate-role">Senior Manager – Asset Management & Portfolio Development</div>
+          <div class="name">Vanganur Jagannath</div>
+          <div class="role">15+ Yrs UAE Real Estate & Asset Management • AED 800M+ Portfolio</div>
         </div>
       </div>
     </div>
 
     <div class="header-actions">
-      <div class="autonomy-control">
-        <span>Autonomy:</span>
-        <select id="autonomy-selector" onchange="updateAutonomyLevel(this.value)">
-          <option value="1" selected>Level 1 — Copilot [Approval Required]</option>
-          <option value="2">Level 2 — AI-First</option>
-          <option value="3">Level 3 — High Autonomy</option>
-        </select>
+      <div id="email-status-badge" class="email-status-pill" onclick="openSettingsModal()">
+        <span class="pulse-dot" id="status-dot"></span>
+        <span id="email-status-text">Checking Email...</span>
       </div>
-
-      <button class="btn-primary" id="btn-run-cycle" onclick="triggerAutonomousLoop()">
-        <span id="cycle-btn-icon">⚡</span>
-        <span id="cycle-btn-text">Run Career Scout Loop</span>
+      <button class="btn-secondary" onclick="openSettingsModal()">
+        <span>⚙️</span> Email Setup
+      </button>
+      <button class="btn-primary" onclick="openTestEmailModal()">
+        <span>✉️</span> Quick Test Send
       </button>
     </div>
   </header>
 
-  <!-- Executive Daily Briefing Banner -->
-  <section class="briefing-banner" id="briefing-banner">
-    <div class="briefing-main">
-      <h2><span>📋</span> Daily Executive Briefing</h2>
-      <div class="briefing-summary" id="briefing-text">
-        Loading real-time autonomous career telemetry for V. Jagannath...
+  <!-- Executive Summary Banner -->
+  <section class="executive-summary-banner">
+    <div class="exec-metrics-grid">
+      <div class="exec-metric-card">
+        <div class="exec-metric-val" id="kpi-jobs-count">52</div>
+        <div class="exec-metric-label">Verified Job Openings</div>
+        <div class="exec-metric-sub">Tailored to UAE 15+ Yrs Commercial & Asset Experience</div>
       </div>
-    </div>
-    <div class="action-required-badge" id="action-badge">
-      <span>🔔</span>
-      <div id="action-required-text">Analyzing active pipeline...</div>
+      <div class="exec-metric-card">
+        <div class="exec-metric-val" id="kpi-contacts-count">64</div>
+        <div class="exec-metric-label">Executive Decision-Makers</div>
+        <div class="exec-metric-sub">Managing Directors, Partners & Heads of Real Estate</div>
+      </div>
+      <div class="exec-metric-card">
+        <div class="exec-metric-val" id="kpi-emails-count">64</div>
+        <div class="exec-metric-label">Official Verified Emails</div>
+        <div class="exec-metric-sub">Direct Corporate & Institutional Addresses</div>
+      </div>
+      <div class="exec-metric-card">
+        <div class="exec-metric-val" id="kpi-sent-count">0</div>
+        <div class="exec-metric-label">Outreach Emails Sent</div>
+        <div class="exec-metric-sub" id="kpi-sent-sub">Ready to dispatch 1-click or batch</div>
+      </div>
     </div>
   </section>
 
   <!-- Navigation Tabs -->
   <nav class="tab-navigation">
-    <button class="tab-button active" onclick="switchTab('tab-dashboard')">
-      <span>🎯</span> Command Center
+    <button class="tab-button active" id="tab-btn-jobs" onclick="switchSimpleTab('jobs')">
+      <span>🎯</span> Job Openings & Roles <span class="tab-count" id="badge-jobs-count">52</span>
     </button>
-    <button class="tab-button" onclick="switchTab('tab-pipeline')">
-      <span>📊</span> Career Pipeline <span class="tab-count" id="badge-pipeline-count">0</span>
+    <button class="tab-button" id="tab-btn-contacts" onclick="switchSimpleTab('contacts')">
+      <span>👥</span> Verified Decision-Makers & Outbound <span class="tab-count" id="badge-contacts-count">64</span>
     </button>
-    <button class="tab-button" onclick="switchTab('tab-matches')">
-      <span>🔍</span> Opportunity & Evidence Radar
-    </button>
-    <button class="tab-button" onclick="switchTab('tab-contacts')">
-      <span>👥</span> Contacts & Outreach <span class="tab-count" id="badge-contacts-count">0</span>
-    </button>
-    <button class="tab-button" onclick="switchTab('tab-resumes')">
-      <span>📑</span> Tailored Resumes & Packets
-    </button>
-    <button class="tab-button" onclick="switchTab('tab-brain')">
-      <span>🧠</span> Career Brain (Verified Provenance)
-    </button>
-    <button class="tab-button" onclick="switchTab('tab-interviews')">
-      <span>🎙️</span> Interview Intelligence
-    </button>
-    <button class="tab-button" onclick="switchTab('tab-approvals')">
-      <span>🛡️</span> Approvals & Exceptions <span class="tab-count" id="badge-approvals-count">0</span>
-    </button>
-    <button class="tab-button" onclick="switchTab('tab-integrations')">
-      <span>🔗</span> Accounts & Live Dispatch <span class="tab-count" id="badge-integrations-status" style="background: rgba(244,63,94,0.2); color: #F43F5E;">OFFLINE</span>
+    <button class="tab-button" id="tab-btn-dossier" onclick="switchSimpleTab('dossier')">
+      <span>📄</span> Jagannath's Executive Dossier & Resume
     </button>
   </nav>
 
-  <!-- Main Container -->
+  <!-- Filter & Action Toolbar -->
+  <section class="toolbar-section">
+    <div class="search-box-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="catalog-search" placeholder="Search by role title, company, leader name, or keyword..." oninput="handleSearch(this.value)">
+      <button class="clear-search-btn" id="btn-clear-search" onclick="clearSearch()" style="display:none;">✕</button>
+    </div>
+
+    <div class="sector-pills" id="sector-filter-container">
+      <button class="sector-pill active" data-sector="ALL" onclick="filterBySector('ALL')">All Sectors (<span id="count-all">52</span>)</button>
+      <button class="sector-pill" data-sector="Investment Banking & PE" onclick="filterBySector('Investment Banking & PE')">Investment Banking & PE</button>
+      <button class="sector-pill" data-sector="Prime Developers" onclick="filterBySector('Prime Developers')">Prime Developers</button>
+      <button class="sector-pill" data-sector="Sovereign Wealth" onclick="filterBySector('Sovereign Wealth')">Sovereign Wealth</button>
+      <button class="sector-pill" data-sector="Global Tech & Retail" onclick="filterBySector('Global Tech & Retail')">Global Tech & Retail</button>
+      <button class="sector-pill" data-sector="Consultancies & Agencies" onclick="filterBySector('Consultancies & Agencies')">Top Agencies & Strategy</button>
+    </div>
+
+    <div class="toolbar-actions" id="batch-action-bar" style="display:none;">
+      <span class="selected-counter" id="selected-counter-text">0 contacts selected</span>
+      <button class="btn-primary" onclick="batchSendSelected()">
+        <span>⚡</span> Send Tailored Emails to Selected
+      </button>
+      <button class="btn-secondary" onclick="deselectAll()">Deselect All</button>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
   <main class="main-container">
 
-    <!-- TAB 1: COMMAND CENTER -->
-    <div class="tab-content active" id="tab-dashboard">
-      <!-- KPI Grid -->
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-gold">
-          <div class="kpi-title">
-            <span>Discovered Roles</span>
-            <span>📍</span>
-          </div>
-          <div class="metric-value kpi-val" id="kpi-discovered">0</div>
-          <div class="kpi-sub">Target institutional firms in Dubai/GCC</div>
-        </div>
-
-        <div class="kpi-card kpi-emerald">
-          <div class="kpi-title">
-            <span>Qualified Pipeline</span>
-            <span>✅</span>
-          </div>
-          <div class="metric-value kpi-val" id="kpi-qualified">0</div>
-          <div class="kpi-sub">Evidence-matched against AED 800M scope</div>
-        </div>
-
-        <div class="kpi-card kpi-blue">
-          <div class="kpi-title">
-            <span>Applications Ready</span>
-            <span>📑</span>
-          </div>
-          <div class="metric-value kpi-val" id="kpi-applications">0</div>
-          <div class="kpi-sub">Tailored ReportLab PDF resumes built</div>
-        </div>
-
-        <div class="kpi-card kpi-purple">
-          <div class="kpi-title">
-            <span>Outreach Dispatched</span>
-            <span>✉️</span>
-          </div>
-          <div class="metric-value kpi-val" id="kpi-outreach">0</div>
-          <div class="kpi-sub">Targeting verified UAE real estate leads</div>
-        </div>
-
-        <div class="kpi-card kpi-gold">
-          <div class="kpi-title">
-            <span>Interview Pipelines</span>
-            <span>🎙️</span>
-          </div>
-          <div class="metric-value kpi-val" id="kpi-interviews">0</div>
-          <div class="kpi-sub">Dossiers & STAR stories mapped</div>
-        </div>
-      </div>
-
-      <!-- Dashboard Columns: Activity Stream + Quick Controls -->
-      <div class="dashboard-columns">
-        <!-- Live AI Activity Stream -->
-        <div class="section-panel">
-          <div class="panel-header">
-            <h3><span>⚡</span> Live AI Multi-Agent Activity Stream</h3>
-            <span class="status-pill"><span class="pulse-dot"></span> Real-time Event Bus</span>
-          </div>
-          <div class="activity-stream" id="activity-stream">
-            <!-- Populated dynamically -->
-            <div style="color: var(--text-muted); text-align: center; padding: 2rem;">Connecting to agent telemetry...</div>
-          </div>
-        </div>
-
-        <!-- Right Column: Target Companies & Safety Controls -->
+    <!-- VIEW 1: JOB OPENINGS & ROLES -->
+    <div class="tab-view active" id="view-jobs">
+      <div class="view-header-row">
         <div>
-          <div class="section-panel">
-            <div class="panel-header">
-              <h3><span>🏛️</span> Target Institutional Employers</h3>
-            </div>
-            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
-              Monitoring 18 global and regional real estate investment organizations:
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;" id="company-chips">
-              <!-- Populated dynamically -->
-            </div>
-          </div>
+          <h2>Verified Real Estate & Asset Management Openings</h2>
+          <p class="view-subtitle">Curated positions in Dubai, Abu Dhabi & GCC matched to V. Jagannath's 15+ years of commercial leasing, asset management, and AED 800M+ portfolio track record.</p>
+        </div>
+        <div class="view-meta-counter" id="jobs-shown-counter">Showing 52 openings</div>
+      </div>
 
-          <div class="section-panel">
-            <div class="panel-header">
-              <h3><span>🛡️</span> Autonomous Safety Status</h3>
-            </div>
-            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
-              <div>• <b>Autonomy Mode:</b> <span id="safety-autonomy-mode" style="color: var(--accent-gold);">Level 1 (Copilot)</span></div>
-              <div>• <b>Anti-Spam Shield:</b> Max 4 contacts / company, 6-day cooldown</div>
-              <div>• <b>Zero Hallucination:</b> 100% Provenance verification enforced</div>
-              <div>• <b>Sensitive Gates:</b> Salary & contracts require human approval</div>
-            </div>
-          </div>
+      <div class="jobs-grid" id="jobs-cards-container">
+        <!-- Rendered dynamically by JavaScript -->
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading verified openings and decision-makers...</p>
         </div>
       </div>
     </div>
 
-    <!-- TAB 2: PIPELINE KANBAN -->
-    <div class="tab-content" id="tab-pipeline">
-      <div class="kanban-board" id="kanban-board">
-        <!-- Columns: DISCOVERED, QUALIFIED, APPLICATION_READY, OUTREACH, INTERVIEW, OFFER -->
-      </div>
-    </div>
-
-    <!-- TAB 3: OPPORTUNITY & EVIDENCE RADAR -->
-    <div class="tab-content" id="tab-matches">
-      <!-- Live UAE Job Search & Ingestion Hub -->
-      <div class="section-panel" style="background: linear-gradient(135deg, rgba(212,175,55,0.06), rgba(59,130,246,0.04)); border: 1px solid rgba(212,175,55,0.25); margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-          <div>
-            <h3 style="font-size: 1.15rem; color: var(--accent-gold); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-              <span>🚀</span> Live UAE Real Estate & Asset Management Search Hub
-            </h3>
-            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem;">
-              1-Click access to live active vacancies in Dubai & UAE. Find any opportunity, then ingest it below for instant fit qualification & tailored ATS resume.
-            </div>
-          </div>
-          <button class="btn-primary" onclick="openIngestJobModal()" style="font-size: 0.88rem; padding: 0.6rem 1.25rem; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(212,175,55,0.3);">
-            <span>➕</span> Ingest Real Job
+    <!-- VIEW 2: VERIFIED DECISION-MAKERS & OUTBOUND DISPATCH -->
+    <div class="tab-view" id="view-contacts" style="display:none;">
+      <div class="view-header-row">
+        <div>
+          <h2>Verified Executive Decision-Makers & Direct Outbound</h2>
+          <p class="view-subtitle">Official verified corporate emails and direct LinkedIn accounts of Managing Directors, Partners, and Heads of Talent. Send tailored pitches in 1-click or batch send.</p>
+        </div>
+        <div class="contacts-table-actions">
+          <button class="btn-secondary" onclick="selectAllVisibleContacts()">
+            <span>☑️</span> Select All Visible
+          </button>
+          <button class="btn-primary" onclick="batchSendSelected()">
+            <span>⚡</span> Batch Send Selected
           </button>
         </div>
-
-        <!-- 1-Click Live Search Buttons -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.6rem;">
-          <a href="https://www.linkedin.com/jobs/search/?keywords=Senior%20Asset%20Manager&location=Dubai%2C%20United%20Arab%20Emirates" target="_blank" rel="noopener noreferrer" style="text-decoration: none; background: rgba(10,102,194,0.12); border: 1px solid rgba(10,102,194,0.3); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between; color: #0A66C2; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">
-            <span>💼 LinkedIn: Senior Asset Manager (Dubai)</span>
-            <span style="font-size: 0.75rem;">↗</span>
-          </a>
-          <a href="https://www.linkedin.com/jobs/search/?keywords=Commercial%20Real%20Estate%20Manager&location=Dubai%2C%20United%20Arab%20Emirates" target="_blank" rel="noopener noreferrer" style="text-decoration: none; background: rgba(10,102,194,0.12); border: 1px solid rgba(10,102,194,0.3); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between; color: #0A66C2; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">
-            <span>🏢 LinkedIn: Commercial RE Manager</span>
-            <span style="font-size: 0.75rem;">↗</span>
-          </a>
-          <a href="https://www.linkedin.com/jobs/search/?keywords=Retail%20Leasing%20Director&location=Dubai%2C%20United%20Arab%20Emirates" target="_blank" rel="noopener noreferrer" style="text-decoration: none; background: rgba(10,102,194,0.12); border: 1px solid rgba(10,102,194,0.3); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between; color: #0A66C2; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">
-            <span>🛍️ LinkedIn: Retail Leasing Director</span>
-            <span style="font-size: 0.75rem;">↗</span>
-          </a>
-          <a href="https://www.gulftalent.com/uae/jobs/category/real-estate" target="_blank" rel="noopener noreferrer" style="text-decoration: none; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between; color: #10B981; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">
-            <span>🌐 GulfTalent: Real Estate UAE</span>
-            <span style="font-size: 0.75rem;">↗</span>
-          </a>
-          <a href="https://www.bayt.com/en/uae/jobs/asset-management-jobs/" target="_blank" rel="noopener noreferrer" style="text-decoration: none; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between; color: #F59E0B; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">
-            <span>📑 Bayt: Asset Management UAE</span>
-            <span style="font-size: 0.75rem;">↗</span>
-          </a>
-          <a href="https://ae.indeed.com/jobs?q=Commercial+Real+Estate&l=Dubai" target="_blank" rel="noopener noreferrer" style="text-decoration: none; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); border-radius: 8px; padding: 0.65rem 0.85rem; display: flex; align-items: center; justify-content: space-between; color: #A855F7; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">
-            <span>🔍 Indeed: Dubai Commercial RE</span>
-            <span style="font-size: 0.75rem;">↗</span>
-          </a>
-        </div>
       </div>
 
-      <div class="section-panel">
-        <div class="panel-header">
-          <div>
-            <h3><span>🔍</span> Tracked Opportunities & Fit Breakdown</h3>
-            <span style="font-size: 0.8rem; color: var(--text-secondary);">Grounded strictly in Candidate Brain facts — No arbitrary scores</span>
+      <div class="contacts-table-container">
+        <table class="contacts-table">
+          <thead>
+            <tr>
+              <th width="40"><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this.checked)"></th>
+              <th>Executive Decision-Maker</th>
+              <th>Company & Sector</th>
+              <th>Official Verified Email</th>
+              <th>LinkedIn Account</th>
+              <th>Outreach Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="contacts-table-body">
+            <!-- Rendered dynamically by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VIEW 3: JAGANNATH'S EXECUTIVE DOSSIER -->
+    <div class="tab-view" id="view-dossier" style="display:none;">
+      <div class="dossier-container">
+        <div class="dossier-header-card">
+          <div class="dossier-title-area">
+            <h1>Vanganur Jagannath</h1>
+            <h3>Senior Asset Manager • Commercial Leasing Director • Portfolio Development Lead</h3>
+            <p class="dossier-tagline">15+ Years UAE Real Estate Track Record | AED 800M+ Portfolio | 2,500+ Leases Executed | Former Leasing Lead at Ithra Dubai LLC (One Za'abeel & Deira Enrichment Project)</p>
           </div>
-          <button class="btn-secondary" onclick="openIngestJobModal()">➕ Ingest Another Job</button>
-        </div>
-        <div id="matches-list">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: DECISION MAKERS & OUTREACH -->
-    <div class="tab-content" id="tab-contacts">
-      <!-- Target Companies Real LinkedIn People Search Bar -->
-      <div class="section-panel" style="background: rgba(10,102,194,0.06); border: 1px solid rgba(10,102,194,0.25); margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.85rem;">
-          <div>
-            <h4 style="font-size: 1.05rem; color: #0A66C2; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-              <svg style="width: 16px; height: 16px; fill: currentColor;" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-              Find Real UAE Leaders on LinkedIn (100% Live Personnel)
-            </h4>
-            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem;">
-              Click any company below to open live LinkedIn search with real Dubai real estate heads and recruiters.
-            </div>
-          </div>
-          <button class="btn-primary" onclick="openAddContactModal()" style="font-size: 0.85rem; padding: 0.55rem 1.15rem; display: flex; align-items: center; gap: 0.4rem;">
-            <span>➕</span> Add Real Contact
-          </button>
-        </div>
-
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;" id="company-linkedin-searches">
-          <!-- Populated dynamically via JS or rendered statically -->
-          <a href="https://www.linkedin.com/search/results/people/?keywords=Blackstone%20Dubai%20Real%20Estate" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> Blackstone Dubai ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=Brookfield%20Dubai%20Asset%20Management" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> Brookfield Dubai ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=Aldar%20Asset%20Management%20UAE" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> Aldar UAE ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=Emaar%20Asset%20Management%20Dubai" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> Emaar Properties ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=Dubai%20Holding%20Real%20Estate%20Dubai" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> Dubai Holding / Meraas ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=Majid%20Al%20Futtaim%20Real%20Estate%20Dubai" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> Majid Al Futtaim ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=BlackRock%20Dubai%20Real%20Estate" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> BlackRock Dubai ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=Goldman%20Sachs%20Dubai%20Real%20Estate" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> Goldman Sachs DIFC ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=JLL%20Dubai%20Real%20Estate" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> JLL Middle East ↗
-          </a>
-          <a href="https://www.linkedin.com/search/results/people/?keywords=CBRE%20Dubai%20Real%20Estate" target="_blank" rel="noopener noreferrer" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-            <span>🏛️</span> CBRE Middle East ↗
-          </a>
-        </div>
-      </div>
-
-      <div class="section-panel" style="border-left: 3px solid var(--accent-gold);">
-        <div class="panel-header" style="flex-wrap: wrap; gap: 1rem;">
-          <div>
-            <h3><span>👥</span> Verified Contacts & Bespoke Outreach</h3>
-            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem;">
-              Only 100% real decision makers. Personalized executive pitches referencing <b>V. Jagannath's</b> AED 800M portfolio and One Za'abeel track record.
-            </div>
-          </div>
-          <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <input type="text" id="contact-search-input" placeholder="Search by name, company, or role..." oninput="filterContacts(this.value)" style="padding: 0.45rem 0.85rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem; min-width: 240px;">
-            <button class="btn-primary" onclick="openAddContactModal()" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; white-space: nowrap;">➕ Add Contact</button>
-          </div>
-        </div>
-
-        <!-- Contacts Grid -->
-        <div id="contacts-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.25rem; margin-top: 1.25rem;">
-          <!-- Populated dynamically via loadContacts() -->
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 4: TAILORED RESUMES & DOCUMENT HUB -->
-    <div class="tab-content" id="tab-resumes">
-      <div class="section-panel">
-        <div class="panel-header">
-          <h3><span>📑</span> Versioned PDF Resumes & Application Packets</h3>
-          <span style="font-size: 0.8rem; color: var(--text-secondary);">Generated via ReportLab — Zero Fact Alteration</span>
-        </div>
-        <div id="resumes-list">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 5: CAREER BRAIN (VERIFIED FACT STORE) -->
-    <div class="tab-content" id="tab-brain">
-      <div class="section-panel">
-        <div class="panel-header">
-          <h3><span>🧠</span> Career Brain Knowledge Graph</h3>
-          <span style="font-size: 0.8rem; color: var(--accent-emerald);">Authoritative CV Ingested: 100% Provenance Verified</span>
-        </div>
-        <div class="facts-grid" id="facts-grid">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 6: INTERVIEW INTELLIGENCE -->
-    <div class="tab-content" id="tab-interviews">
-      <div class="section-panel">
-        <div class="panel-header">
-          <h3><span>🎙️</span> Executive Interview Preparation Cockpit</h3>
-          <span style="font-size: 0.8rem; color: var(--text-secondary);">Mapped STAR stories, domain questions & debrief engine</span>
-        </div>
-        <div id="interviews-list">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 7: APPROVALS & EXCEPTIONS -->
-    <div class="tab-content" id="tab-approvals">
-      <div class="section-panel">
-        <div class="panel-header">
-          <h3><span>🛡️</span> Human Escalation & Approvals Queue</h3>
-          <span style="font-size: 0.8rem; color: var(--accent-gold);">Exception-First Architecture: You decide on material items</span>
-        </div>
-        <div id="approvals-list">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 8: ACCOUNTS & LIVE DISPATCH -->
-    <div class="tab-content" id="tab-integrations">
-      <div class="section-panel" style="border-left: 3px solid var(--accent-gold);">
-        <div class="panel-header">
-          <div>
-            <h3><span>🔗</span> Live Outbound Transmission & Autonomous Dispatch Engine</h3>
-            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">
-              Manage verified email delivery (SMTP/IMAP) and direct professional LinkedIn outreach on behalf of <b>V. Jagannath</b>.
-            </div>
-          </div>
-          <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
-            <button class="btn-secondary" id="btn-sim-toggle" onclick="toggleSimulatedMode()" style="font-size: 0.76rem; padding: 0.4rem 0.85rem; border: 1px solid var(--accent-gold); color: var(--accent-gold);">
-              ⚡ Enable Sandbox / Simulation Mode
+          <div class="dossier-quick-actions">
+            <a href="/api/documents/download/Vanganur_Jagannath_Executive_ATS_Resume.pdf" class="btn-primary" target="_blank">
+              <span>📥</span> Download ATS Resume PDF
+            </a>
+            <button class="btn-secondary" onclick="copyExecutiveSummary()">
+              <span>📋</span> Copy Executive Bio
             </button>
-            <span class="status-pill" id="live-dispatch-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E; border-color: rgba(244,63,94,0.3);">
-              ⚠️ Staging Mode (Credentials Pending)
-            </span>
           </div>
         </div>
 
-        <div id="integrations-global-msg" style="display: none; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.82rem; line-height: 1.5;"></div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-          
-          <!-- Gmail Account Card -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-                  <span>📧</span> Google / Gmail Integration
-                </h4>
-                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                  <span class="status-pill" id="gmail-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
-                </div>
-              </div>
-
-              <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
-                Enables <b>Outreach Agent</b> to transmit live executive emails via dual-port SMTP (SSL: 465 / STARTTLS: 587) and <b>Inbox Agent</b> to monitor recruiter replies via IMAP.
-              </div>
-
-              <div style="margin-bottom: 0.85rem;">
-                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Candidate Email Address:</label>
-                <input type="email" id="input-gmail-addr" value="v.jagannath3@gmail.com" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-              </div>
-
-              <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Google App Password (16 characters):</label>
-                <input type="password" id="input-gmail-pwd" placeholder="e.g. abcd efgh ijkl mnop" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
-                  💡 <b>Fast Setup:</b> Google Account &gt; Security &gt; 2-Step Verification &gt; App Passwords &gt; Generate for "Mail" &gt; Paste the 16-character password here.
-                </div>
-              </div>
-
-              <div id="gmail-status-msg" style="display: none; padding: 0.6rem 0.85rem; border-radius: 6px; font-size: 0.78rem; margin-bottom: 0.85rem; line-height: 1.4;"></div>
-
-              <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                <button class="btn-primary" id="btn-connect-gmail" onclick="connectGmailAccount()">✓ Connect & Verify Gmail</button>
-                <button class="btn-secondary" onclick="syncLiveInbox()">🔄 Sync Inbox (IMAP)</button>
-                <button class="btn-secondary" id="btn-disconnect-gmail" onclick="disconnectService('GMAIL')" style="display: none; color: #F43F5E;">Disconnect</button>
-              </div>
-            </div>
-
-            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
-              <div style="font-size: 0.78rem; font-weight: 600; color: var(--accent-gold); margin-bottom: 0.4rem;">Send Live Test Email:</div>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="email" id="input-test-recipient" placeholder="Recipient (e.g. your email)" style="flex: 1; padding: 0.5rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.8rem;">
-                <button class="btn-secondary" onclick="sendTestEmail()">Send Test</button>
-              </div>
-            </div>
+        <div class="dossier-grid">
+          <div class="dossier-card">
+            <h4>🏆 Core Career Highlights & Metrics</h4>
+            <ul class="dossier-list">
+              <li><strong>AED 800M+ Asset Portfolio:</strong> Direct governance over asset yield, tenancy strategy, service charge models, and lease renewals across prime UAE developments.</li>
+              <li><strong>2,500+ Leases Negotiated:</strong> Commercial offices, flagship retail, F&B hubs, community malls, and mixed-use complexes.</li>
+              <li><strong>Iconic Projects:</strong> Led leasing and asset programs across One Za'abeel and Deira Enrichment Project under Ithra Dubai LLC (Investment Corporation of Dubai).</li>
+              <li><strong>Leadership Roles:</strong> Senior Manager at Grandiose / Ghassan Aboud Group; Lead Leasing Manager at Ithra Dubai LLC.</li>
+              <li><strong>Regulatory & Legal:</strong> Deep expertise in UAE Civil Transactions Law, Dubai RERA tenancy legislation, Ejari, DFSA / DIFC compliance, and lease dispute arbitration.</li>
+            </ul>
           </div>
 
-          <!-- LinkedIn Account Card -->
-          <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h4 style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-                  <span>💼</span> LinkedIn Autonomous Dispatch
-                </h4>
-                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                  <span class="status-pill" id="linkedin-status-pill" style="background: rgba(244,63,94,0.15); color: #F43F5E;">DISCONNECTED</span>
-                </div>
-              </div>
-
-              <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.4;">
-                Enables <b>Outreach Agent</b> to dispatch personalized InMails and executive connection requests directly from <b>V. Jagannath's</b> LinkedIn profile.
-              </div>
-
-              <div style="margin-bottom: 0.85rem;">
-                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Candidate LinkedIn Profile URL:</label>
-                <input type="url" id="input-linkedin-url" placeholder="https://www.linkedin.com/in/your-profile" value="" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-              </div>
-
-              <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">LinkedIn Session Cookie (<code>li_at</code>) or Auth Token:</label>
-                <input type="password" id="input-linkedin-cookie" placeholder="Paste li_at cookie value..." style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem;">
-                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.4;">
-                  💡 <b>How to get <code>li_at</code>:</b> Log into LinkedIn in your browser &gt; Press F12 &gt; Application &gt; Cookies &gt; <code>https://www.linkedin.com</code> &gt; Copy <code>li_at</code>.
-                </div>
-              </div>
-
-              <div id="linkedin-status-msg" style="display: none; padding: 0.6rem 0.85rem; border-radius: 6px; font-size: 0.78rem; margin-bottom: 0.85rem; line-height: 1.4;"></div>
-
-              <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                <button class="btn-primary" id="btn-connect-linkedin" onclick="connectLinkedInAccount()">✓ Connect & Verify LinkedIn</button>
-                <button class="btn-secondary" id="btn-disconnect-linkedin" onclick="disconnectService('LINKEDIN')" style="display: none; color: #F43F5E;">Disconnect</button>
-              </div>
-            </div>
-
-            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                <div style="font-size: 0.78rem; font-weight: 600; color: var(--accent-gold);">Test LinkedIn Dispatch:</div>
-                <button class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.75rem;" onclick="testLinkedInDispatch()">Send Test InMail</button>
-              </div>
-              <div style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">
-                Autonomous Rate-Limit Shield: Max 20 personalized notes/week with humanized jitter.
-              </div>
-            </div>
+          <div class="dossier-card">
+            <h4>🎯 Target Executive Roles</h4>
+            <ul class="dossier-list">
+              <li><strong>Head of Leasing / Commercial Director:</strong> Master developer and asset management firms.</li>
+              <li><strong>VP / Senior Asset Manager:</strong> Institutional private equity and global investment banks (Goldman Sachs, Morgan Stanley, Blackstone, Brookfield).</li>
+              <li><strong>Retail & Mixed-Use Portfolio Lead:</strong> Prime developers (Emaar, Aldar, Meraas, Majid Al Futtaim, Wasl).</li>
+              <li><strong>Corporate Real Estate Lead (GREF):</strong> Global tech & multinational giants (Amazon, Microsoft, Google).</li>
+            </ul>
           </div>
-
         </div>
       </div>
     </div>
 
   </main>
 
-  <!-- Modals -->
-  <!-- 1. Job Evidence Inspector Modal -->
-  <div class="modal-backdrop" id="modal-match" onclick="closeModal('modal-match', event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
+  <!-- MODAL: PREVIEW & SEND TAILORED EMAIL -->
+  <div class="modal-overlay" id="email-modal" style="display:none;" onclick="handleModalOverlayClick(event, 'email-modal')">
+    <div class="modal-content email-composer-modal">
       <div class="modal-header">
         <div>
-          <h2 id="modal-match-title">Opportunity Fit & Evidence Report</h2>
-          <div id="modal-match-company" style="color: var(--accent-gold); font-size: 0.9rem; font-weight: 600;"></div>
+          <h3 id="modal-email-title">Send Tailored Executive Outreach</h3>
+          <p class="modal-sub" id="modal-email-target">Recipient: Contact Name (Company Name)</p>
         </div>
-        <button class="modal-close" onclick="closeModal('modal-match')">&times;</button>
-      </div>
-      <div id="modal-match-body"></div>
-    </div>
-  </div>
-
-  <!-- 2. Application Packet Viewer Modal -->
-  <div class="modal-backdrop" id="modal-app" onclick="closeModal('modal-app', event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <div>
-          <h2 id="modal-app-title">Application Packet & Cover Letter</h2>
-          <div id="modal-app-company" style="color: var(--accent-gold); font-size: 0.9rem; font-weight: 600;"></div>
-        </div>
-        <button class="modal-close" onclick="closeModal('modal-app')">&times;</button>
-      </div>
-      <div id="modal-app-body"></div>
-    </div>
-  </div>
-
-  <!-- 3. Interview Dossier Modal -->
-  <div class="modal-backdrop" id="modal-interview" onclick="closeModal('modal-interview', event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <div>
-          <h2 id="modal-interview-title">Executive Interview Dossier</h2>
-          <div id="modal-interview-company" style="color: var(--accent-gold); font-size: 0.9rem; font-weight: 600;"></div>
-        </div>
-        <button class="modal-close" onclick="closeModal('modal-interview')">&times;</button>
-      </div>
-      <div id="modal-interview-body"></div>
-    </div>
-  <!-- 4. Ingest Real Job Modal -->
-  <div class="modal-backdrop" id="modal-ingest-job" onclick="closeModal('modal-ingest-job', event)">
-    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 650px;">
-      <div class="modal-header">
-        <div>
-          <h2 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
-            <span>📥</span> Ingest Real Job Posting
-          </h2>
-          <div style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.25rem;">
-            Paste any active vacancy from LinkedIn, Bayt, or company portals. The agent evaluates fit against Jagannath's verified facts, tailors an ATS resume PDF, and creates an executive application packet.
-          </div>
-        </div>
-        <button class="modal-close" onclick="closeModal('modal-ingest-job')">&times;</button>
+        <button class="modal-close" onclick="closeEmailModal()">✕</button>
       </div>
 
-      <div style="padding: 1.25rem 0;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem;">
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Job Title *</label>
-            <input type="text" id="ingest-job-title" placeholder="e.g. Senior Asset Manager – Real Estate" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
+      <div class="modal-body">
+        <!-- COMPANY PROFILE INTELLIGENCE BADGE -->
+        <div id="modal-company-intel" style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.82rem; color: #cbd5e1; line-height: 1.45;">
+          <div style="font-weight: 600; color: #38bdf8; margin-bottom: 3px; display: flex; align-items: center; gap: 6px;">
+            <span>🏢</span> <span id="modal-company-focus-title">Target Company Profile Intelligence</span>
           </div>
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Company Name *</label>
-            <input type="text" id="ingest-job-company" placeholder="e.g. Brookfield, Aldar, Blackstone" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
+          <div id="modal-company-focus-desc">Loading verified company footprint...</div>
+        </div>
+
+        <!-- TAB SWITCHER: EMAIL VS LINKEDIN -->
+        <div class="composer-tab-bar" style="display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px;">
+          <button type="button" id="tab-btn-email" onclick="switchOutreachTab('email')" style="padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 1px solid #38bdf8; background: rgba(56, 189, 248, 0.18); color: #38bdf8; transition: all 0.2s;">
+            ✉️ Email Pitch (Company-Tailored)
+          </button>
+          <button type="button" id="tab-btn-linkedin" onclick="switchOutreachTab('linkedin')" style="padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.15); background: transparent; color: #94a3b8; transition: all 0.2s;">
+            🔗 LinkedIn Note (Company-Tailored)
+          </button>
+        </div>
+
+        <!-- SECTION 1: EMAIL PITCH (AUTO-FILLED) -->
+        <div id="composer-section-email">
+          <div class="form-group">
+            <label>Recipient Official Email (Auto-Filled):</label>
+            <div class="input-with-copy">
+              <input type="email" id="modal-email-recipient" class="form-input" readonly>
+              <button class="btn-copy-sm" onclick="copyInputText('modal-email-recipient')">Copy</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email Subject (Company Profile Grounded):</label>
+            <input type="text" id="modal-email-subject" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label>Email Pitch Body (Auto-Filled with Company &amp; Asset Relevance):</label>
+            <textarea id="modal-email-body" class="form-textarea" rows="8"></textarea>
+          </div>
+
+          <!-- QUICK GMAIL APP PASSWORD CONNECT (Shown if not yet connected) -->
+          <div id="modal-app-password-box" class="gmail-quick-connect-card" style="display:none; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-weight: 600; font-size: 0.88rem; color: #38bdf8;">🔑 Connect Gmail for 1-Click Automated Sending</span>
+              <a href="https://myaccount.google.com/apppasswords" target="_blank" style="font-size: 0.78rem; color: #94a3b8; text-decoration: underline;">Generate in Google</a>
+            </div>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 8px 0; line-height: 1.4;">
+              Paste Jagannath's 16-character Google App Password once. Every "Send Email" click will dispatch automatically from <strong>v.jagannath3@gmail.com</strong>.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="modal-quick-password" class="form-input" placeholder="Paste 16-character App Password (e.g. abcd efgh ijkl mnop)" style="font-size: 0.85rem; padding: 6px 10px;">
+              <button type="button" class="btn-primary" id="modal-quick-save-btn" onclick="saveQuickPasswordAndSend()" style="white-space: nowrap; font-size: 0.82rem; padding: 6px 14px; background: #2563eb;">
+                Save &amp; Send Now
+              </button>
+            </div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem;">
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Location</label>
-            <input type="text" id="ingest-job-location" value="Dubai, UAE" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
+        <!-- SECTION 2: LINKEDIN NOTE (AUTO-FILLED) -->
+        <div id="composer-section-linkedin" style="display: none;">
+          <div class="form-group">
+            <label>Recipient LinkedIn Profile:</label>
+            <div class="input-with-copy">
+              <input type="text" id="modal-linkedin-url" class="form-input" readonly placeholder="https://www.linkedin.com/in/...">
+              <button class="btn-copy-sm" onclick="openLinkedInDirect()" style="white-space: nowrap;">🌐 Open</button>
+            </div>
           </div>
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Real Posting URL *</label>
-            <input type="url" id="ingest-job-url" placeholder="https://www.linkedin.com/jobs/view/..." style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
+
+          <div class="form-group">
+            <label>Tailored LinkedIn Outreach Note (Company-Profile Grounded):</label>
+            <textarea id="modal-linkedin-body" class="form-textarea" rows="7"></textarea>
+            <small class="form-help">Optimized for LinkedIn connection requests and InMail. References company portfolio &amp; Jagannath's AED 800M track record.</small>
           </div>
         </div>
 
-        <div style="margin-bottom: 1rem;">
-          <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Job Description & Requirements * (Paste full text)</label>
-          <textarea id="ingest-job-desc" rows="6" placeholder="Paste the job responsibilities, qualifications, and requirements directly from LinkedIn or the company page..." style="width: 100%; padding: 0.65rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem; line-height: 1.5; resize: vertical;"></textarea>
+        <div class="send-status-alert" id="modal-send-alert" style="display:none;"></div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-footer-left" id="modal-footer-email-left">
+          <button class="btn-primary" id="modal-btn-gmail" onclick="sendViaGmailWeb()" style="background:#ea4335; border-color:#ea4335;" title="Open pre-filled draft in Gmail in your browser">
+            <span>✉️</span> Open in Gmail Web
+          </button>
+          <button class="btn-secondary" id="modal-btn-linkedin-tab" onclick="switchOutreachTab('linkedin')">
+            <span>🔗</span> View LinkedIn Note
+          </button>
         </div>
-
-        <div id="ingest-status-msg" style="display: none; padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; margin-bottom: 0.85rem;"></div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 0.6rem;">
-          <button class="btn-secondary" onclick="closeModal('modal-ingest-job')">Cancel</button>
-          <button class="btn-primary" id="btn-submit-ingest" onclick="submitIngestJob()" style="padding: 0.6rem 1.4rem;">
-            🚀 Ingest & Tailor Application
+        <div class="modal-footer-left" id="modal-footer-linkedin-left" style="display: none;">
+          <button class="btn-primary" onclick="copyLinkedInModalNote()" style="background:#0a66c2; border-color:#0a66c2;" title="Copy tailored LinkedIn note to clipboard">
+            <span>📋</span> Copy LinkedIn Note
+          </button>
+          <button class="btn-secondary" onclick="switchOutreachTab('email')">
+            <span>✉️</span> View Email Pitch
+          </button>
+        </div>
+        <div class="modal-footer-right">
+          <button class="btn-secondary" onclick="closeEmailModal()">Cancel</button>
+          <button class="btn-primary" id="modal-btn-send" onclick="sendViaAutomatedSystem()" style="background: #2563eb; border-color: #2563eb; font-weight: 600;">
+            <span>🚀</span> Send Email via Gmail
+          </button>
+          <button class="btn-primary" id="modal-btn-open-linkedin" onclick="openLinkedInAndCopy()" style="display: none; background: #0a66c2; border-color: #0a66c2; font-weight: 600;">
+            <span>🔗</span> Copy &amp; Open LinkedIn
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 5. Add Real Contact Modal -->
-  <div class="modal-backdrop" id="modal-add-contact" onclick="closeModal('modal-add-contact', event)">
-    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 600px;">
+  <!-- MODAL: EMAIL SETTINGS -->
+  <div class="modal-overlay" id="settings-modal" style="display:none;" onclick="handleModalOverlayClick(event, 'settings-modal')">
+    <div class="modal-content settings-modal-box">
       <div class="modal-header">
         <div>
-          <h2 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
-            <span>👤</span> Add Real Executive Contact
-          </h2>
-          <div style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.25rem;">
-            Add an actual decision maker from LinkedIn or your Dubai real estate network. The AI agent immediately crafts a tailored email pitch and LinkedIn note.
-          </div>
+          <h3>Automated Email Dispatch Settings</h3>
+          <p class="modal-sub">Configure Jagannath's Gmail account to send tailored pitches automatically in the background.</p>
         </div>
-        <button class="modal-close" onclick="closeModal('modal-add-contact')">&times;</button>
+        <button class="modal-close" onclick="closeSettingsModal()">✕</button>
       </div>
 
-      <div style="padding: 1.25rem 0;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem;">
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Full Name *</label>
-            <input type="text" id="contact-full-name" placeholder="e.g. John Doe" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Company Name *</label>
-            <input type="text" id="contact-company-name" placeholder="e.g. Blackstone, Aldar, Brookfield" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
-          </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Official Sender Gmail Address (Candidate):</label>
+          <input type="email" id="settings-email" class="form-input" value="v.jagannath3@gmail.com" readonly style="background: rgba(255,255,255,0.05); color: #38bdf8; font-weight: 600;">
+          <small class="form-help">Locked to Jagannath's verified account: <strong>v.jagannath3@gmail.com</strong>.</small>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem;">
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Job Title</label>
-            <input type="text" id="contact-job-title" placeholder="e.g. Managing Director – Real Estate" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Role Type</label>
-            <select id="contact-role-category" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: #1a1a24; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
-              <option value="hiring_manager">Hiring Manager / Business Leader</option>
-              <option value="recruiter">Talent Acquisition / Recruiter</option>
-              <option value="department_leader">Department Head / Executive</option>
-              <option value="referral">Industry Peer / Referral</option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label>Google App Password (16 Characters):</label>
+          <input type="password" id="settings-password" class="form-input" placeholder="e.g. abcd efgh ijkl mnop">
+          <small class="form-help">
+            To generate in 30 seconds: Go to <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#38bdf8; text-decoration:underline;">Google Account Security &gt; App Passwords</a>, name it <strong>"Career Agent"</strong>, and paste the 16 characters here.
+          </small>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.85rem;">
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Real LinkedIn Profile URL</label>
-            <input type="url" id="contact-linkedin-url" placeholder="https://www.linkedin.com/in/..." style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Corporate Email (Optional)</label>
-            <input type="email" id="contact-email" placeholder="name@company.com" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
-          </div>
+        <div class="form-group-checkbox">
+          <label>
+            <input type="checkbox" id="settings-simulate">
+            <span>Enable Sandbox Simulation Mode (Testing only — uncheck to send real live emails)</span>
+          </label>
         </div>
 
-        <div style="margin-bottom: 1rem;">
-          <label style="display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem;">Notes / Context (Optional)</label>
-          <input type="text" id="contact-notes" placeholder="e.g. Leads Dubai retail portfolio; connected on LinkedIn" style="width: 100%; padding: 0.55rem 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.82rem;">
+        <div class="settings-guide-card">
+          <h4>💡 1-Click Direct Sending</h4>
+          <p>Once your App Password is saved, clicking <strong>"Send Email"</strong> on any opening or decision-maker immediately delivers the personalized pitch to that specific executive from <strong>v.jagannath3@gmail.com</strong>.</p>
         </div>
 
-        <div id="add-contact-status-msg" style="display: none; padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; margin-bottom: 0.85rem;"></div>
+        <div class="send-status-alert" id="settings-alert" style="display:none;"></div>
+      </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 0.6rem;">
-          <button class="btn-secondary" onclick="closeModal('modal-add-contact')">Cancel</button>
-          <button class="btn-primary" id="btn-submit-contact" onclick="submitAddContact()" style="padding: 0.6rem 1.4rem;">
-            ✨ Save & Generate Bespoke Outreach
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeSettingsModal()">Close</button>
+        <button class="btn-primary" onclick="saveEmailSettings()">
+          <span>💾</span> Save &amp; Connect Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: QUICK TEST SEND -->
+  <div class="modal-overlay" id="test-email-modal" style="display:none;" onclick="handleModalOverlayClick(event, 'test-email-modal')">
+    <div class="modal-content settings-modal-box">
+      <div class="modal-header">
+        <div>
+          <h3>Send a Quick Test Email</h3>
+          <p class="modal-sub">Verify that automated email dispatch works by sending a test pitch to your own inbox.</p>
+        </div>
+        <button class="modal-close" onclick="closeTestEmailModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Official Sender Gmail (Candidate):</label>
+          <input type="email" id="test-email-sender" class="form-input" value="v.jagannath3@gmail.com" readonly style="background: rgba(255,255,255,0.05); color: #38bdf8; font-weight: 600;">
+          <small class="form-help">Outbound emails are sent from Jagannath's official address: <strong>v.jagannath3@gmail.com</strong>.</small>
+        </div>
+        <div class="form-group">
+          <label>Send Test Email To (Recipient):</label>
+          <input type="email" id="test-email-recipient" class="form-input" value="v.jagannath3@gmail.com" placeholder="recipient@gmail.com">
+        </div>
+        <div class="form-group" id="test-email-pw-group">
+          <label>Google App Password (16 Characters):</label>
+          <input type="password" id="test-email-password" class="form-input" placeholder="Paste 16-letter App Password (e.g. abcd efgh ijkl mnop)">
+          <small class="form-help">
+            16 letters from <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:#38bdf8; text-decoration:underline;">Google Security &gt; App Passwords</a>.
+          </small>
+        </div>
+        <div class="send-status-alert" id="test-email-alert" style="display:none;"></div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <button class="btn-primary" onclick="openTestInGmailWeb()" style="background: #ea4335; border-color: #ea4335;" title="Open pre-filled compose window in Gmail Web (Zero setup required)">
+          <span>✉️</span> Open in Gmail Web
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" onclick="closeTestEmailModal()">Cancel</button>
+          <button class="btn-primary" id="btn-run-test-send" onclick="runQuickTestSend()">
+            <span>🚀</span> Dispatch Test Email
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="js/app.js"></script>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- JavaScript Client -->
+  <script src="js/app.js?v=7.0"></script>
 </body>
 </html>

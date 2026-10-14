@@ -30,7 +30,8 @@ class ResumeTailoringAgent:
         target_company = job["company_name"]
         target_role = job["title"]
 
-        company_clean = target_company.replace(" ", "").replace(".", "").replace(",", "")
+        import re
+        company_clean = re.sub(r'[^a-zA-Z0-9_-]', '', target_company)
         version_name = f"Jagannath_{company_clean}_v1"
         pdf_filename = f"{version_name}.pdf"
 
